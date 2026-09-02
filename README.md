@@ -41,19 +41,24 @@ npx serve admin -l 5501
 npx serve espace-client -l 5502
 ```
 
-## Deploying (cPanel)
+## Deploying
 
-`site/`, `admin/`, and `espace-client/` are deployed as **subpaths of one
-domain**, not separate sites — that's what the `IS_LOCAL` check above assumes:
+The domain (`vakpon-tours.com`) stays on cPanel for DNS + mail only — actual
+hosting for `site/`, `admin/`, and `espace-client/` lives on a VPS, all three
+as **subpaths of one domain**, not separate sites (that's what the
+`IS_LOCAL` check above assumes):
 
-- Upload `site/`'s *contents* (not the folder itself) directly into
-  `public_html/`, so `https://vakpon-tours.com/` serves `site/index.html` —
-  never `https://vakpon-tours.com/site/index.html`.
-- Upload the `admin/` and `espace-client/` folders as-is into `public_html/`,
-  so they land at `https://vakpon-tours.com/admin/index.html` and
-  `https://vakpon-tours.com/espace-client/index.html`.
+- `https://vakpon-tours.com/` → `site/`'s contents
+- `https://vakpon-tours.com/admin/index.html` → the `admin/` folder
+- `https://vakpon-tours.com/espace-client/index.html` → the `espace-client/` folder
 
-Any other static host works too (Netlify, Vercel, S3 + CloudFront...) as long
-as the same three-subpaths-under-one-domain shape is preserved; deploying them
-as three unrelated domains would break the `IS_LOCAL` production branch above
-and the backend's single-origin `CORS_ORIGIN`.
+`deploy/nginx-vakpon-tours.conf` is a ready-to-use Nginx config for exactly
+this shape — `git clone` this repo onto the VPS and point Nginx at it; no
+build step or file copying needed. See
+[VakponBackend's README](https://github.com/Parisius/VakponBackend#deployment-topology)
+for the API side and the matching `deploy/nginx-api.conf`.
+
+Any static host works in principle (Netlify, Vercel, S3 + CloudFront...) as
+long as the same three-subpaths-under-one-domain shape is preserved —
+deploying them as three unrelated domains would break the `IS_LOCAL`
+production branch above and the backend's single-origin `CORS_ORIGIN`.
