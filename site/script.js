@@ -41,8 +41,11 @@
     update();
   })();
 
-  // Point this at your deployed API before going live (see README).
-  const API_BASE = 'http://localhost:3001/api';
+  // Local dev keeps working from localhost; everywhere else hits the deployed API.
+  const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const API_BASE = IS_LOCAL ? 'http://localhost:3001/api' : 'https://api.vakpon-tours.com/api';
+  const ESPACE_CLIENT_URL = IS_LOCAL ? 'http://localhost:5502/index.html' : 'https://vakpon-tours.com/espace-client/index.html';
+  document.querySelectorAll('.espace-client-link').forEach((el) => { el.href = ESPACE_CLIENT_URL; });
 
   function escapeHtml(str) {
     return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));

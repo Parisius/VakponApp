@@ -1,5 +1,7 @@
 // ====== CONFIG ======
-const API_BASE = 'http://localhost:3001/api'; // change to your deployed API URL
+// Local dev keeps working from localhost; everywhere else hits the deployed API.
+const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const API_BASE = IS_LOCAL ? 'http://localhost:3001/api' : 'https://api.vakpon-tours.com/api';
 
 const ROLE_LABELS = {
   admin: 'Admin',

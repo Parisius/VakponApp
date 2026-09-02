@@ -14,19 +14,22 @@ espace-client/    Customer portal (reservations, offers catalog, profile)
 sharing `styles.css` and a `modules/shared.js` (auth, API client, toasts,
 pagination, theme) — see `modules/` in each app for the per-page scripts.
 
-## Before deploying
+## Environment
 
-Both `admin/modules/shared.js` and `espace-client/modules/shared.js` (and
-`site/script.js`) hardcode:
+`site/script.js`, `admin/modules/shared.js`, and `espace-client/modules/shared.js`
+each detect their environment from `window.location.hostname`:
 
 ```js
-const API_BASE = 'http://localhost:3001/api';
+const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const API_BASE = IS_LOCAL ? 'http://localhost:3001/api' : 'https://api.vakpon-tours.com/api';
 ```
 
-Update this to your deployed backend URL in all three before going live.
-`espace-client/modules/shared.js`'s topbar links also assume `admin/` and
-`espace-client/` are reachable at the URLs configured in the backend's
-`CORS_ORIGIN` and `CLIENT_URL` env vars — keep those in sync.
+Nothing to edit before deploying — local dev keeps hitting `localhost:3001`,
+everywhere else hits `api.vakpon-tours.com`. Same pattern for the "Espace
+Client" links on the landing page (`http://localhost:5502/index.html` locally,
+`https://vakpon-tours.com/espace-client/index.html` in production). If the
+production API domain ever changes, update the hardcoded URL in those three
+files.
 
 ## Running locally
 
@@ -38,10 +41,19 @@ npx serve admin -l 5501
 npx serve espace-client -l 5502
 ```
 
-(Match the ports to your backend's `CORS_ORIGIN` setting, or update it.)
+## Deploying (cPanel)
 
-## Deploying
+`site/`, `admin/`, and `espace-client/` are deployed as **subpaths of one
+domain**, not separate sites — that's what the `IS_LOCAL` check above assumes:
 
-Any static host works (Netlify, Vercel, GitHub Pages, S3 + CloudFront...).
-Deploy `site/`, `admin/`, and `espace-client/` as three separate sites/projects
-pointing at this repo's respective folders as the publish directory.
+- Upload `site/`'s *contents* (not the folder itself) directly into
+  `public_html/`, so `https://vakpon-tours.com/` serves `site/index.html` —
+  never `https://vakpon-tours.com/site/index.html`.
+- Upload the `admin/` and `espace-client/` folders as-is into `public_html/`,
+  so they land at `https://vakpon-tours.com/admin/index.html` and
+  `https://vakpon-tours.com/espace-client/index.html`.
+
+Any other static host works too (Netlify, Vercel, S3 + CloudFront...) as long
+as the same three-subpaths-under-one-domain shape is preserved; deploying them
+as three unrelated domains would break the `IS_LOCAL` production branch above
+and the backend's single-origin `CORS_ORIGIN`.
