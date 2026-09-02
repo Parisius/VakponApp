@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build: .
+    container_name: vakpon-frontend
+    restart: unless-stopped
+    ports:
+      # Published on all interfaces so your reverse proxy (e.g. Nginx Proxy
+      # Manager) can reach it via the VPS's real IP — see README.md.
+      - "8300:80"

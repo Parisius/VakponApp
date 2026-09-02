@@ -52,11 +52,34 @@ as **subpaths of one domain**, not separate sites (that's what the
 - `https://vakpon-tours.com/admin/index.html` → the `admin/` folder
 - `https://vakpon-tours.com/espace-client/index.html` → the `espace-client/` folder
 
-`deploy/nginx-vakpon-tours.conf` is a ready-to-use Nginx config for exactly
-this shape — `git clone` this repo onto the VPS and point Nginx at it; no
-build step or file copying needed. See
-[VakponBackend's README](https://github.com/Parisius/VakponBackend#deployment-topology)
-for the API side and the matching `deploy/nginx-api.conf`.
+### Option A — plain Nginx
+
+`deploy/nginx-vakpon-tours.conf` is a ready-to-use config for exactly this
+shape — `git clone` this repo onto the VPS and point Nginx at it; no build
+step or file copying needed.
+
+### Option B — Nginx Proxy Manager (or any reverse proxy that only speaks host:port)
+
+NPM can't serve a static folder directly, so this repo also ships a tiny
+Nginx *container* (`Dockerfile` + `docker-compose.yml`) that serves all three
+apps and exposes them on one port:
+
+```bash
+docker compose up -d --build   # serves on http://<vps-ip>:8300
+```
+
+Then in NPM, **Add Proxy Host**:
+- Domain Names: `vakpon-tours.com`, `www.vakpon-tours.com`
+- Forward Hostname/IP: your VPS's real IP (not `vakpon-tours.com` itself, and
+  not `localhost`/`127.0.0.1` — NPM runs in its own container, so `localhost`
+  there means the NPM container, not this one)
+- Forward Port: `8300`
+- SSL tab: request a new Let's Encrypt certificate, enable **Force SSL**
+
+See [VakponBackend's README](https://github.com/Parisius/VakponBackend#deployment-topology)
+for the matching `api.vakpon-tours.com` proxy host.
+
+---
 
 Any static host works in principle (Netlify, Vercel, S3 + CloudFront...) as
 long as the same three-subpaths-under-one-domain shape is preserved —
