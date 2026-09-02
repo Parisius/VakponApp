@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion | Vakpon Tours Back-office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section class="auth-screen">
+  <div class="auth-side">
+    <img class="logo-img" src="images/logo-white.png" alt="Vakpon Tours">
+    <h1>Back-office</h1>
+    <p>Suivez les réservations, gérez les offres et accompagnez vos clients, du premier message jusqu'au voyage.</p>
+  </div>
+  <div class="auth-main">
+    <div class="auth-card">
+      <span class="brand-logo">
+        <img class="logo-img logo-color" src="images/logo-color.png" alt="Vakpon Tours">
+        <img class="logo-img logo-white" src="images/logo-white.png" alt="Vakpon Tours">
+      </span>
+      <h2>Connexion</h2>
+      <div class="auth-sub">Réservé à l'équipe Vakpon Tours.</div>
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="loginPassword" required></div>
+        <button type="submit" class="btn-pill full">Se connecter</button>
+        <div class="auth-error" id="loginError"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script src="modules/shared.js"></script>
+<script>
+  initTheme();
+  if (getToken()) window.location.href = 'index.html';
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = '';
+    try {
+      const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      if (!Object.keys(ROLE_LABELS).includes(data.user.role)) {
+        errorEl.textContent = "Ce compte n'a pas les droits pour accéder au back-office.";
+        return;
+      }
+      setToken(data.accessToken);
+      setIdentity(data.user);
+      window.location.href = 'index.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+    }
+  });
+</script>
+</body>
+</html>

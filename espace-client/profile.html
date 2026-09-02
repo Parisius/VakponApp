@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon profil | Espace Client Vakpon Tours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <span class="brand-logo">
+    <img class="logo-img logo-color" src="images/logo-color.png" alt="Vakpon Tours">
+    <img class="logo-img logo-white" src="images/logo-white.png" alt="Vakpon Tours">
+  </span>
+  <nav class="ec-nav" id="ecNav"></nav>
+  <div class="topbar-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+      <svg class="moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button class="topbar-avatar-btn" id="profileMenuBtn"><div class="avatar" id="topbarAvatar">?</div></button>
+    <div class="profile-menu" id="profileMenu">
+      <div class="profile-menu-head"><b id="profileMenuName">—</b><span>Client</span></div>
+      <button class="danger" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="view-head"><h1>Mon profil</h1></div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div id="nextTripCard"></div>
+
+  <div class="view-head" style="margin-top:8px;"><h1 style="font-size:18px;">Mes informations</h1></div>
+  <div class="profile-card">
+    <div class="field"><label>Nom complet</label><input id="profileName"></div>
+    <div class="field"><label>Email</label><input id="profileEmail" disabled></div>
+    <div class="field">
+      <label>Téléphone</label>
+      <div class="phone-field">
+        <select id="profileCountry"></select>
+        <input type="tel" id="profilePhone" placeholder="Numéro local">
+      </div>
+    </div>
+    <button class="btn-outline" id="saveProfileBtn">Enregistrer</button>
+    <button class="btn-outline" id="openChangePassword" style="margin-left:10px;">Changer le mot de passe</button>
+  </div>
+</main>
+
+<div class="modal" id="changePasswordModal">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel">
+    <button class="modal-close" data-close-modal>&times;</button>
+    <h2 style="margin-bottom:16px;">Changer le mot de passe</h2>
+    <form id="changePasswordForm">
+      <div class="field"><label>Mot de passe actuel</label><input type="password" id="cp-current" required></div>
+      <div class="field"><label>Nouveau mot de passe</label><input type="password" id="cp-new" required minlength="6"></div>
+      <button type="submit" class="btn-pill full">Mettre à jour</button>
+      <div class="auth-error" id="changePasswordError"></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="modules/countries.js"></script>
+<script src="modules/shared.js"></script>
+<script src="modules/profile.js"></script>
+</body>
+</html>

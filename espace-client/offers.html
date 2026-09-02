@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offres | Espace Client Vakpon Tours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <span class="brand-logo">
+    <img class="logo-img logo-color" src="images/logo-color.png" alt="Vakpon Tours">
+    <img class="logo-img logo-white" src="images/logo-white.png" alt="Vakpon Tours">
+  </span>
+  <nav class="ec-nav" id="ecNav"></nav>
+  <div class="topbar-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+      <svg class="moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button class="topbar-avatar-btn" id="profileMenuBtn"><div class="avatar" id="topbarAvatar">?</div></button>
+    <div class="profile-menu" id="profileMenu">
+      <div class="profile-menu-head"><b id="profileMenuName">—</b><span>Client</span></div>
+      <button class="danger" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="view-head">
+    <h1>Nos offres</h1>
+  </div>
+  <div id="offersGrid" class="offers-grid"></div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="modules/countries.js"></script>
+<script src="modules/shared.js"></script>
+<script src="modules/offers.js"></script>
+</body>
+</html>

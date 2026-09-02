@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion | Espace Client Vakpon Tours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section class="auth-screen">
+  <div class="auth-side">
+    <img class="logo-img" src="images/logo-white.png" alt="Vakpon Tours">
+    <h1>Espace Client</h1>
+    <p>Suivez vos réservations, échangez avec notre équipe et préparez votre voyage au Bénin, à tout moment.</p>
+  </div>
+  <div class="auth-main">
+    <div class="auth-card">
+      <span class="brand-logo">
+        <img class="logo-img logo-color" src="images/logo-color.png" alt="Vakpon Tours">
+        <img class="logo-img logo-white" src="images/logo-white.png" alt="Vakpon Tours">
+      </span>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Se connecter</button>
+        <button class="auth-tab" data-tab="register">Créer un compte</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="loginPassword" required></div>
+        <button type="submit" class="btn-pill full">Se connecter</button>
+        <div class="auth-error" id="loginError"></div>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <div class="field"><label>Nom complet</label><input type="text" id="regName" required></div>
+        <div class="field"><label>Email</label><input type="email" id="regEmail" required></div>
+        <div class="field">
+          <label>Téléphone</label>
+          <div class="phone-field">
+            <select id="regCountry"></select>
+            <input type="tel" id="regPhone" placeholder="Numéro local">
+          </div>
+        </div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="regPassword" required minlength="6"></div>
+        <button type="submit" class="btn-pill full">Créer mon compte</button>
+        <div class="auth-error" id="registerError"></div>
+      </form>
+
+      <p class="auth-note">Vous avez déjà réservé depuis le site ? Utilisez l'email et le mot de passe temporaire reçus par email.</p>
+    </div>
+  </div>
+</section>
+
+<script src="modules/countries.js"></script>
+<script src="modules/shared.js"></script>
+<script>
+  initTheme();
+  if (getToken()) window.location.href = 'index.html';
+  populateCountrySelect(document.getElementById('regCountry'), 'BJ');
+
+  document.querySelectorAll('.auth-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.auth-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('loginForm').classList.toggle('hidden', tab.dataset.tab !== 'login');
+      document.getElementById('registerForm').classList.toggle('hidden', tab.dataset.tab !== 'register');
+    });
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = '';
+    try {
+      const data = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }),
+      });
+      setToken(data.accessToken);
+      window.location.href = 'index.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+    }
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('registerError');
+    errorEl.textContent = '';
+    const payload = {
+      fullName: document.getElementById('regName').value,
+      email: document.getElementById('regEmail').value,
+      phone: getPhoneValue(document.getElementById('regCountry'), document.getElementById('regPhone')),
+      password: document.getElementById('regPassword').value,
+    };
+    try {
+      const data = await api('/auth/register', { method: 'POST', body: JSON.stringify(payload) });
+      setToken(data.accessToken);
+      window.location.href = 'index.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+    }
+  });
+</script>
+</body>
+</html>

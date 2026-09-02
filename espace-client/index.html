@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes réservations | Espace Client Vakpon Tours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <span class="brand-logo">
+    <img class="logo-img logo-color" src="images/logo-color.png" alt="Vakpon Tours">
+    <img class="logo-img logo-white" src="images/logo-white.png" alt="Vakpon Tours">
+  </span>
+  <nav class="ec-nav" id="ecNav"></nav>
+  <div class="topbar-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+      <svg class="moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button class="topbar-avatar-btn" id="profileMenuBtn"><div class="avatar" id="topbarAvatar">?</div></button>
+    <div class="profile-menu" id="profileMenu">
+      <div class="profile-menu-head"><b id="profileMenuName">—</b><span>Client</span></div>
+      <button class="danger" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div id="mustChangeBanner" class="banner hidden">
+    Merci de définir un nouveau mot de passe pour sécuriser votre compte.
+    <button class="btn-pill" id="openChangePassword" style="margin-left:12px;">Changer le mot de passe</button>
+  </div>
+
+  <div class="view-head">
+    <h1>Mes réservations</h1>
+    <button class="btn-pill" id="newReservationBtn">+ Nouvelle réservation</button>
+  </div>
+
+  <div id="reservationsList" class="cards-grid"></div>
+</main>
+
+<div class="modal" id="reservationModal">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel"><button class="modal-close" data-close-modal>&times;</button><div id="reservationModalBody"></div></div>
+</div>
+
+<div class="modal" id="newReservationModal">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel">
+    <button class="modal-close" data-close-modal>&times;</button>
+    <h2 style="margin-bottom:16px;">Nouvelle réservation</h2>
+    <form id="newReservationForm">
+      <div class="field">
+        <label>Offre</label>
+        <select id="nr-offer"><option value="">Offre sur-mesure</option></select>
+      </div>
+      <div class="field" id="customOfferField">
+        <label>Précisez votre demande</label>
+        <input id="nr-offerName" placeholder="Ex: Circuit Nature & Parcs, 10 jours">
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Nombre de voyageurs</label><input type="number" id="nr-travelers" min="1" value="2"></div>
+        <div class="field"><label>Date de début</label><input type="date" id="nr-start"></div>
+      </div>
+      <div class="field"><label>Date de fin</label><input type="date" id="nr-end"></div>
+      <div class="field"><label>Votre message</label><textarea id="nr-message" placeholder="Parlez-nous de votre projet de voyage..."></textarea></div>
+      <button type="submit" class="btn-pill full">Envoyer ma demande de réservation</button>
+      <div class="auth-error" id="newReservationError"></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="changePasswordModal">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel">
+    <button class="modal-close" data-close-modal>&times;</button>
+    <h2 style="margin-bottom:16px;">Changer le mot de passe</h2>
+    <form id="changePasswordForm">
+      <div class="field"><label>Mot de passe actuel</label><input type="password" id="cp-current" required></div>
+      <div class="field"><label>Nouveau mot de passe</label><input type="password" id="cp-new" required minlength="6"></div>
+      <button type="submit" class="btn-pill full">Mettre à jour</button>
+      <div class="auth-error" id="changePasswordError"></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="modules/countries.js"></script>
+<script src="modules/shared.js"></script>
+<script src="modules/reservations.js"></script>
+</body>
+</html>
