@@ -37,6 +37,7 @@
         <div class="field"><label>Mot de passe</label><input type="password" id="loginPassword" required></div>
         <button type="submit" class="btn-pill full">Se connecter</button>
         <div class="auth-error" id="loginError"></div>
+        <button type="button" class="link-btn" id="openForgotPassword">Mot de passe oublié ?</button>
       </form>
 
       <form id="registerForm" class="auth-form hidden">
@@ -59,12 +60,48 @@
   </div>
 </section>
 
+<div class="modal" id="forgotPasswordModal">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel">
+    <button class="modal-close" data-close-modal>&times;</button>
+    <h2 style="margin-bottom:16px;">Mot de passe oublié</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+      Indiquez votre email : si un compte existe, un mot de passe temporaire vous sera envoyé.
+    </p>
+    <form id="forgotPasswordForm">
+      <div class="field"><label>Email</label><input type="email" id="fp-email" required></div>
+      <button type="submit" class="btn-pill full">Envoyer</button>
+      <div class="auth-error" id="forgotPasswordError"></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
 <script src="modules/countries.js"></script>
 <script src="modules/shared.js"></script>
 <script>
   initTheme();
   if (getToken()) window.location.href = 'index.html';
   populateCountrySelect(document.getElementById('regCountry'), 'BJ');
+
+  document.querySelectorAll('[data-close-modal]').forEach((el) => {
+    el.addEventListener('click', (e) => e.target.closest('.modal').classList.remove('open'));
+  });
+  document.getElementById('openForgotPassword').addEventListener('click', () => openModal('forgotPasswordModal'));
+  document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('forgotPasswordError');
+    errorEl.textContent = '';
+    try {
+      await api('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email: document.getElementById('fp-email').value }) });
+      closeModal('forgotPasswordModal');
+      e.target.reset();
+      showToast('Si un compte existe avec cet email, un mot de passe temporaire vient de lui être envoyé.', { persistent: true });
+    } catch (err) {
+      errorEl.textContent = err.message;
+    }
+  });
 
   document.querySelectorAll('.auth-tab').forEach((tab) => {
     tab.addEventListener('click', () => {

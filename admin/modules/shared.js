@@ -330,6 +330,7 @@ const STATUS_LABELS = {
 const ACTION_LABELS = {
   'member.create': 'Création membre', 'member.update': 'Modification membre', 'member.remove': 'Suppression membre',
   'password.reset': 'Réinitialisation mot de passe', 'password.change': 'Changement mot de passe',
+  'password.forgot': 'Mot de passe oublié',
   'reservation.status': 'Statut réservation', 'reservation.notes': 'Notes réservation',
   'customer.update': 'Fiche client', 'offer.create': 'Création offre',
   'offer.update': 'Modification offre', 'offer.delete': 'Suppression offre',
