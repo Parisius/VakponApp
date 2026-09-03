@@ -37,13 +37,31 @@ function render() {
       <td>${o.title}</td>
       <td>${o.priceTiers?.[0]?.amount || '—'}</td>
       <td>${o.featured ? '✅' : '—'}</td>
-      <td>${o.active ? '✅' : '—'}</td>
-      <td><div class="row-actions"><button data-delete="${o._id}" class="danger">Suppr.</button></div></td>
+      <td>${o.active ? '✅' : '<span style="color:var(--muted);">Expirée</span>'}</td>
+      <td>
+        <div class="row-actions">
+          <button data-toggle="${o._id}">${o.active ? 'Désactiver' : 'Réactiver'}</button>
+          <button data-delete="${o._id}" class="danger">Suppr.</button>
+        </div>
+      </td>
     </tr>
   `).join('') || `<tr><td colspan="5" style="color:var(--muted);">Aucune offre.</td></tr>`;
 
   tbody.querySelectorAll('tr[data-id]').forEach((row) => {
-    row.addEventListener('click', (e) => { if (!e.target.closest('[data-delete]')) openOfferForm(row.dataset.id); });
+    row.addEventListener('click', (e) => { if (!e.target.closest('[data-delete],[data-toggle]')) openOfferForm(row.dataset.id); });
+  });
+  tbody.querySelectorAll('[data-toggle]').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const o = offersCache.find((x) => x._id === btn.dataset.toggle);
+      const nextActive = !o.active;
+      if (!confirm(nextActive ? 'Réactiver cette offre ?' : 'Marquer cette offre comme expirée ? Elle disparaîtra du site.')) return;
+      try {
+        await api(`/admin/offers/${btn.dataset.toggle}`, { method: 'PATCH', body: JSON.stringify({ active: nextActive }) });
+        load();
+        showToast(nextActive ? 'Offre réactivée.' : 'Offre marquée comme expirée.');
+      } catch (err) { showToast(err.message, { type: 'error' }); }
+    });
   });
   tbody.querySelectorAll('[data-delete]').forEach((btn) => {
     btn.addEventListener('click', async (e) => {

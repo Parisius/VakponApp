@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard | Vakpon Tours Back-office</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -47,18 +51,28 @@
     <main class="main">
       <div class="view-head">
         <h1>Dashboard</h1>
+        <div class="period-filter" id="periodFilter">
+          <button data-period="today">Aujourd'hui</button>
+          <button data-period="7" class="active">7 jours</button>
+          <button data-period="30">30 jours</button>
+          <button data-period="all">Tout</button>
+        </div>
       </div>
 
       <div class="kpi-grid" id="kpiGrid"></div>
 
       <div class="dash-grid">
         <div class="table-wrap dash-card">
-          <div class="dash-card-head">Réservations — 14 derniers jours</div>
+          <div class="dash-card-head" id="chartTitle">Réservations</div>
           <div id="reservationsChart" class="chart-area"></div>
         </div>
         <div class="table-wrap dash-card">
           <div class="dash-card-head">Réservations par statut</div>
           <div id="statusBreakdown" class="status-breakdown"></div>
+        </div>
+        <div class="table-wrap dash-card">
+          <div class="dash-card-head">Offres les plus demandées</div>
+          <div id="topOffers" class="status-breakdown"></div>
         </div>
       </div>
     </main>

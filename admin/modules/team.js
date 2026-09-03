@@ -13,7 +13,7 @@ let myId = null;
   if (!identity) return;
   myId = identity.userId;
 
-  document.getElementById('newTeamMemberBtn').addEventListener('click', openNewMemberForm);
+  document.getElementById('newTeamMemberBtn').addEventListener('click', () => openTeamMemberForm(null));
   document.getElementById('exportCsv').addEventListener('click', exportCsvClick);
   document.getElementById('exportExcel').addEventListener('click', exportExcelClick);
 
@@ -49,6 +49,12 @@ function render() {
     </tr>
   `).join('') || `<tr><td colspan="5" style="color:var(--muted);">Aucun membre.</td></tr>`;
 
+  tbody.querySelectorAll('tr[data-id]').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('[data-reset],[data-remove]')) return;
+      openTeamMemberForm(teamCache.find((m) => m._id === row.dataset.id));
+    });
+  });
   tbody.querySelectorAll('[data-reset]').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -70,18 +76,21 @@ function render() {
   renderPagination('pagination', list.length, page, PAGE_SIZE, (p) => { page = p; render(); });
 }
 
-function openNewMemberForm() {
+function openTeamMemberForm(member) {
+  const isEdit = !!member;
   const body = document.getElementById('teamModalBody');
-  const roleOptions = Object.entries(ROLE_LABELS).map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
+  const roleOptions = Object.entries(ROLE_LABELS)
+    .map(([value, label]) => `<option value="${value}" ${member?.role === value ? 'selected' : ''}>${label}</option>`)
+    .join('');
   body.innerHTML = `
-    <h2 style="margin-bottom:16px;">Ajouter un membre</h2>
-    <div class="field"><label>Nom complet</label><input id="tm-name"></div>
-    <div class="field"><label>Email</label><input id="tm-email" type="email"></div>
+    <h2 style="margin-bottom:16px;">${isEdit ? 'Modifier le membre' : 'Ajouter un membre'}</h2>
+    <div class="field"><label>Nom complet</label><input id="tm-name" value="${member?.fullName || ''}"></div>
+    <div class="field"><label>Email</label><input id="tm-email" type="email" value="${member?.email || ''}"></div>
     <div class="field"><label>Rôle</label><select id="tm-role">${roleOptions}</select></div>
-    <button class="btn-pill full" id="createTeamMemberBtn">Créer le compte</button>
+    <button class="btn-pill full" id="saveTeamMemberBtn">${isEdit ? 'Enregistrer' : 'Créer le compte'}</button>
     <div class="auth-error" id="teamError"></div>
   `;
-  body.querySelector('#createTeamMemberBtn').addEventListener('click', async () => {
+  body.querySelector('#saveTeamMemberBtn').addEventListener('click', async () => {
     const errorEl = document.getElementById('teamError');
     errorEl.textContent = '';
     const fullName = document.getElementById('tm-name').value.trim();
@@ -89,10 +98,17 @@ function openNewMemberForm() {
     const role = document.getElementById('tm-role').value;
     if (!fullName || !email) { errorEl.textContent = 'Nom et email sont requis.'; return; }
     try {
-      const { tempPassword } = await api('/admin/team', { method: 'POST', body: JSON.stringify({ fullName, email, role }) });
-      closeModal('teamModal');
-      load();
-      showToast(`Compte créé pour ${fullName}. Mot de passe temporaire : ${tempPassword}`, { type: 'success', persistent: true, copyValue: tempPassword });
+      if (isEdit) {
+        await api(`/admin/team/${member._id}`, { method: 'PATCH', body: JSON.stringify({ fullName, email, role }) });
+        closeModal('teamModal');
+        load();
+        showToast('Membre mis à jour.');
+      } else {
+        const { tempPassword } = await api('/admin/team', { method: 'POST', body: JSON.stringify({ fullName, email, role }) });
+        closeModal('teamModal');
+        load();
+        showToast(`Compte créé pour ${fullName}. Mot de passe temporaire : ${tempPassword}`, { type: 'success', persistent: true, copyValue: tempPassword });
+      }
     } catch (err) { errorEl.textContent = err.message; }
   });
   openModal('teamModal');

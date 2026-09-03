@@ -37,7 +37,10 @@ function setToken(t) { localStorage.setItem('vakpon_admin_token', t); }
 function clearToken() { localStorage.removeItem('vakpon_admin_token'); }
 function getIdentity() { try { return JSON.parse(localStorage.getItem('vakpon_admin_identity') || 'null'); } catch { return null; } }
 function setIdentity(u) {
-  localStorage.setItem('vakpon_admin_identity', JSON.stringify({ userId: u.id || u._id, fullName: u.fullName, email: u.email, role: u.role }));
+  localStorage.setItem('vakpon_admin_identity', JSON.stringify({
+    userId: u.id || u._id, fullName: u.fullName, email: u.email, role: u.role,
+    mustChangePassword: !!u.mustChangePassword,
+  }));
 }
 function clearIdentity() { localStorage.removeItem('vakpon_admin_identity'); }
 
@@ -244,18 +247,88 @@ async function initShell({ view, requiredRoles = null, onSearch = null } = {}) {
     el.addEventListener('click', (e) => e.target.closest('.modal').classList.remove('open'));
   });
 
+  initChangePassword(identity);
+
   return identity;
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
+// ====== CHANGE PASSWORD (voluntary from the profile menu, or forced on first login) ======
+function initChangePassword(identity) {
+  if (!document.getElementById('changePasswordModal')) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'changePasswordModal';
+    modal.innerHTML = `
+      <div class="modal-backdrop" data-close-modal></div>
+      <div class="modal-panel">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h2 style="margin-bottom:16px;">Changer le mot de passe</h2>
+        <p id="changePasswordNote" class="hidden" style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+          Merci de définir un nouveau mot de passe pour sécuriser votre compte.
+        </p>
+        <form id="changePasswordForm">
+          <div class="field"><label>Mot de passe actuel</label><input type="password" id="cp-current" required></div>
+          <div class="field"><label>Nouveau mot de passe</label><input type="password" id="cp-new" required minlength="6"></div>
+          <button type="submit" class="btn-pill full">Mettre à jour</button>
+          <div class="auth-error" id="changePasswordError"></div>
+        </form>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('#changePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('changePasswordError');
+      errorEl.textContent = '';
+      try {
+        await api('/auth/change-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            currentPassword: document.getElementById('cp-current').value,
+            newPassword: document.getElementById('cp-new').value,
+          }),
+        });
+        const stored = getIdentity();
+        if (stored) { stored.mustChangePassword = false; localStorage.setItem('vakpon_admin_identity', JSON.stringify(stored)); }
+        setChangePasswordForced(false);
+        closeModal('changePasswordModal');
+        e.target.reset();
+        showToast('Mot de passe mis à jour.');
+      } catch (err) { errorEl.textContent = err.message; }
+    });
+  }
+
+  const profileMenu = document.getElementById('profileMenu');
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (profileMenu && logoutBtn && !document.getElementById('changePasswordMenuBtn')) {
+    const btn = document.createElement('button');
+    btn.id = 'changePasswordMenuBtn';
+    btn.textContent = 'Changer le mot de passe';
+    btn.addEventListener('click', () => { profileMenu.classList.remove('open'); openModal('changePasswordModal'); });
+    logoutBtn.parentNode.insertBefore(btn, logoutBtn);
+  }
+
+  if (identity.mustChangePassword) {
+    setChangePasswordForced(true);
+    openModal('changePasswordModal');
+  }
+}
+
+function setChangePasswordForced(forced) {
+  const modal = document.getElementById('changePasswordModal');
+  if (!modal) return;
+  modal.querySelector('.modal-close').classList.toggle('hidden', forced);
+  modal.querySelector('.modal-backdrop').style.pointerEvents = forced ? 'none' : '';
+  modal.querySelector('#changePasswordNote').classList.toggle('hidden', !forced);
+}
+
 const STATUS_LABELS = {
   pending: 'En attente', confirmed: 'Confirmée', awaiting_payment: 'Attente paiement',
   paid: 'Payée', completed: 'Terminée', cancelled: 'Annulée',
 };
 const ACTION_LABELS = {
-  'member.create': 'Création membre', 'member.remove': 'Suppression membre',
+  'member.create': 'Création membre', 'member.update': 'Modification membre', 'member.remove': 'Suppression membre',
   'password.reset': 'Réinitialisation mot de passe', 'password.change': 'Changement mot de passe',
   'reservation.status': 'Statut réservation', 'reservation.notes': 'Notes réservation',
   'customer.update': 'Fiche client', 'offer.create': 'Création offre',
