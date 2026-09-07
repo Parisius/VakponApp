@@ -223,6 +223,19 @@ async function initShell({ view, requiredRoles = null, onSearch = null } = {}) {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  if (sidebar && sidebarToggle && sidebarBackdrop) {
+    const closeSidebar = () => { sidebar.classList.remove('open'); sidebarBackdrop.classList.remove('open'); };
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarBackdrop.classList.toggle('open');
+    });
+    sidebarBackdrop.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+  }
+
   const profileMenuBtn = document.getElementById('profileMenuBtn');
   const profileMenu = document.getElementById('profileMenu');
   if (profileMenuBtn && profileMenu) {

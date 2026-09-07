@@ -313,8 +313,11 @@
   // Hero carousel — every offer the admin flags isHero gets its own slide,
   // appended after any slide(s) already built for earlier hero offers rather
   // than replacing them (see the static-fallback comment near slideMeta above).
+  // Capped at 9 slides total (5 static "patrimoine" slides + up to 4 offer
+  // slides) so the pagination row stays usable.
+  const MAX_HERO_SLIDES = 4;
   function applyHeroOffers(offers) {
-    const heroList = offers.filter((o) => o.isHero);
+    const heroList = offers.filter((o) => o.isHero).slice(0, MAX_HERO_SLIDES);
     heroOffersList = heroList;
     if (!heroList.length) return;
 
