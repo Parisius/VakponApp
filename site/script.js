@@ -229,10 +229,15 @@
   const ffMenuToggle = document.getElementById('ffMenuToggle');
   const ffMenuPanel = document.getElementById('ffMenuPanel');
   if (ffMenuToggle) {
-    const closeFfMenu = () => { ffMenuPanel.classList.remove('open'); document.body.style.overflow = ''; };
+    const closeFfMenu = () => {
+      ffMenuPanel.classList.remove('open');
+      ffMenuToggle.classList.remove('is-open');
+      document.body.style.overflow = '';
+    };
     ffMenuToggle.addEventListener('click', () => {
       const opening = !ffMenuPanel.classList.contains('open');
       ffMenuPanel.classList.toggle('open', opening);
+      ffMenuToggle.classList.toggle('is-open', opening);
       document.body.style.overflow = opening ? 'hidden' : '';
     });
     document.addEventListener('click', (e) => {
