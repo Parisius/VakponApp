@@ -119,67 +119,89 @@
       });
     });
   });
-  // FarmForm-style hero: pagination sync + text swap for the special-offer slide + menu toggle
-  const ffSegs = document.querySelectorAll('#ffPagination .seg');
+  // FarmForm-style hero: pagination sync + text swap for special-offer slides + menu toggle.
+  // Every offer the admin flags isHero gets its own slide, added after any existing
+  // ones (see applyHeroOffers below) — the static markup below is just slide 0's
+  // fallback content until the API responds.
+  const ffPaginationEl = document.getElementById('ffPagination');
+  const ffBgEl = document.getElementById('ffBg');
   const ffWelcome = document.getElementById('ffWelcome');
   const ffHeadline = document.getElementById('ffHeadline');
   const ffCta = document.getElementById('ffCta');
-  const OFFER_SLIDE_INDEX = 0; // 1st slide (0-indexed) — the special offer
   const defaultText = { welcome: 'Avec Vakpon Tours', headline: 'Vivez une nouvelle façon<br>de découvrir le Bénin' };
   const offerText = { welcome: 'Offre Spéciale : Places Limitées', headline: 'Pack Séjour Bénin<br>7 jours / 6 nuits <br> dès 2 232€' };
 
-  const ffBgImgs = document.querySelectorAll('#ffBg img');
   const ffPin = document.getElementById('ffPin');
   const pinTitle = document.getElementById('pinTitle');
   const pinSub = document.getElementById('pinSub');
-  const pins = [
-    { title:'Route des Esclaves', sub:' · Ouidah',              action:'offer' },
-    { title:'Collines de Dassa',  sub:' · Dassa-Zoumè',          action:'#patrimoine' },
-    { title:'Tata Somba',         sub:' · Boukoumbé',            action:'#patrimoine' },
-    { title:'Ganvié',             sub:' · Cité lacustre',        action:'#patrimoine' },
-    { title:'Porto-Novo',         sub:' · Capitale politique',   action:'#patrimoine' },
-    { title:'Statue Bio Guerra',  sub:' · Cotonou',              action:'#patrimoine' }
-  ];
+  // Per-slide data, keyed by the slide's .seg element (so inserting new offer
+  // slides never desyncs stale numeric indices from earlier renders).
+  const slideMeta = new Map();
+  let heroOffersList = [];
+  {
+    const initialPins = [
+      { title: 'Route des Esclaves', sub: ' · Ouidah' },
+      { title: 'Collines de Dassa', sub: ' · Dassa-Zoumè' },
+      { title: 'Tata Somba', sub: ' · Boukoumbé' },
+      { title: 'Ganvié', sub: ' · Cité lacustre' },
+      { title: 'Porto-Novo', sub: ' · Capitale politique' },
+      { title: 'Statue Bio Guerra', sub: ' · Cotonou' },
+    ];
+    Array.from(ffPaginationEl.querySelectorAll('.seg')).forEach((seg, i) => {
+      slideMeta.set(seg, i === 0
+        ? { pinTitle: initialPins[0].title, pinSub: initialPins[0].sub, welcome: offerText.welcome, headline: offerText.headline, isOffer: true, offer: null }
+        : { pinTitle: initialPins[i].title, pinSub: initialPins[i].sub, isOffer: false, offer: null });
+    });
+  }
+
+  function ffSegCount() { return ffPaginationEl.querySelectorAll('.seg').length; }
 
   function setFfSlide(index) {
-    ffSegs.forEach(s => s.classList.remove('active'));
-    ffSegs[index].classList.add('active');
-    ffBgImgs.forEach(img => img.classList.remove('active'));
-    if (ffBgImgs[index]) ffBgImgs[index].classList.add('active');
-    const isOffer = index === OFFER_SLIDE_INDEX;
-    const text = isOffer ? offerText : defaultText;
-    if (ffWelcome) ffWelcome.textContent = text.welcome;
-    if (ffHeadline) ffHeadline.innerHTML = text.headline;
+    const segs = Array.from(ffPaginationEl.querySelectorAll('.seg'));
+    const bgImgs = Array.from(ffBgEl.querySelectorAll('img'));
+    segs.forEach(s => s.classList.remove('active'));
+    if (segs[index]) segs[index].classList.add('active');
+    bgImgs.forEach(img => img.classList.remove('active'));
+    if (bgImgs[index]) bgImgs[index].classList.add('active');
+    const meta = segs[index] && slideMeta.get(segs[index]);
+    const isOffer = !!(meta && meta.isOffer);
+    if (ffWelcome) ffWelcome.textContent = isOffer ? meta.welcome : defaultText.welcome;
+    if (ffHeadline) ffHeadline.innerHTML = isOffer ? meta.headline : defaultText.headline;
     if (ffCta) ffCta.classList.toggle('show', isOffer);
-    const p = pins[index];
-    if (p && ffPin) {
-      pinTitle.textContent = p.title;
-      pinSub.textContent = p.sub;
+    if (meta && ffPin) {
+      pinTitle.textContent = meta.pinTitle;
+      pinSub.textContent = meta.pinSub;
     }
   }
 
   let ffIndex = 0;
-  if (ffSegs.length) {
+  if (ffSegCount()) {
     let ffTimer = setInterval(() => {
-      ffIndex = (ffIndex + 1) % ffSegs.length;
+      ffIndex = (ffIndex + 1) % ffSegCount();
       setFfSlide(ffIndex);
     }, 5000);
 
-    ffSegs.forEach((seg, i) => {
-      seg.style.cursor = 'pointer';
-      seg.addEventListener('click', () => {
-        ffIndex = i;
+    ffPaginationEl.addEventListener('click', (e) => {
+      const seg = e.target.closest('.seg');
+      if (!seg) return;
+      const i = Array.from(ffPaginationEl.querySelectorAll('.seg')).indexOf(seg);
+      if (i === -1) return;
+      ffIndex = i;
+      setFfSlide(ffIndex);
+      clearInterval(ffTimer);
+      ffTimer = setInterval(() => {
+        ffIndex = (ffIndex + 1) % ffSegCount();
         setFfSlide(ffIndex);
-        clearInterval(ffTimer);
-        ffTimer = setInterval(() => {
-          ffIndex = (ffIndex + 1) % ffSegs.length;
-          setFfSlide(ffIndex);
-        }, 5000);
-      });
+      }, 5000);
     });
+    ffPaginationEl.querySelectorAll('.seg').forEach(seg => { seg.style.cursor = 'pointer'; });
   }
 
-  if (ffCta) ffCta.addEventListener('click', () => openOfferModal());
+  if (ffCta) ffCta.addEventListener('click', () => {
+    const segs = Array.from(ffPaginationEl.querySelectorAll('.seg'));
+    const meta = segs[ffIndex] && slideMeta.get(segs[ffIndex]);
+    openOfferModal(meta && meta.offer);
+  });
 
   setFfSlide(0);
 
@@ -216,7 +238,8 @@
   // Special offer modal — delegated so it also works on offer cards
   // rendered dynamically after the page has already loaded (see loadOffers below).
   const offerModal = document.getElementById('offerModal');
-  function openOfferModal() {
+  function openOfferModal(offer) {
+    populateOfferModal(offer || heroOffersList[0]);
     offerModal.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -287,20 +310,51 @@
     }
   }
 
-  // Hero section + its detail modal — driven by whichever offer the admin
-  // marked isHero (see admin/modules/offers.js). Falls back to whatever's
-  // hardcoded in index.html if no hero offer is set or the API is unreachable.
-  function applyHeroOffer(offer) {
+  // Hero carousel — every offer the admin flags isHero gets its own slide,
+  // appended after any slide(s) already built for earlier hero offers rather
+  // than replacing them (see the static-fallback comment near slideMeta above).
+  function applyHeroOffers(offers) {
+    const heroList = offers.filter((o) => o.isHero);
+    heroOffersList = heroList;
+    if (!heroList.length) return;
+
+    heroList.forEach((offer, i) => {
+      const segs = Array.from(ffPaginationEl.querySelectorAll('.seg'));
+      const bgImgs = Array.from(ffBgEl.querySelectorAll('img'));
+      let seg = segs[i];
+      let bgImg = bgImgs[i];
+      const existingMeta = seg && slideMeta.get(seg);
+      if (!existingMeta || !existingMeta.isOffer) {
+        // No offer slide at this position yet — insert a brand-new one right
+        // before whatever sits there now (a patrimoine slide, or nothing).
+        seg = document.createElement('div');
+        seg.className = 'seg';
+        seg.style.cursor = 'pointer';
+        bgImg = document.createElement('img');
+        ffPaginationEl.insertBefore(seg, segs[i] || null);
+        ffBgEl.insertBefore(bgImg, bgImgs[i] || null);
+      }
+      const heroImg = offer.images && offer.images[0];
+      slideMeta.set(seg, {
+        pinTitle: offer.heroPinTitle || offer.title,
+        pinSub: offer.heroPinSub ? ' · ' + offer.heroPinSub : '',
+        welcome: offer.heroWelcomeText || offerText.welcome,
+        headline: offer.heroHeadline ? escapeHtml(offer.heroHeadline).replace(/\n/g, '<br>') : offerText.headline,
+        isOffer: true,
+        offer,
+      });
+      if (heroImg) { bgImg.src = heroImg; bgImg.alt = offer.title || ''; }
+    });
+
+    setFfSlide(ffIndex); // re-render whichever slide is currently showing, in case its content just changed
+  }
+
+  // Offer detail modal — populated for whichever offer is being shown
+  // (the active hero slide's offer, or the one a card/link was tied to).
+  function populateOfferModal(offer) {
     if (!offer) return;
 
-    if (offer.heroWelcomeText) offerText.welcome = offer.heroWelcomeText;
-    if (offer.heroHeadline) offerText.headline = escapeHtml(offer.heroHeadline).replace(/\n/g, '<br>');
-    if (offer.heroPinTitle) pins[OFFER_SLIDE_INDEX].title = offer.heroPinTitle;
-    if (offer.heroPinSub) pins[OFFER_SLIDE_INDEX].sub = ' · ' + offer.heroPinSub;
     const heroImg = offer.images && offer.images[0];
-    if (heroImg && ffBgImgs[OFFER_SLIDE_INDEX]) ffBgImgs[OFFER_SLIDE_INDEX].src = heroImg;
-    setFfSlide(ffIndex); // re-render whichever slide is currently showing
-
     const setText = (id, value) => { const el = document.getElementById(id); if (el && value) el.textContent = value; };
     const modalBgImg = document.getElementById('modalBgImg');
     if (modalBgImg && heroImg) modalBgImg.src = heroImg;
@@ -359,7 +413,7 @@
         stack.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
       }
       populateOfferSelect(offers);
-      applyHeroOffer(offers.find((o) => o.isHero));
+      applyHeroOffers(offers);
     } catch (err) {
       console.error('Vakpon Tours: could not load offers from the API', err);
     }
