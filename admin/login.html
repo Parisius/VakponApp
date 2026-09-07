@@ -34,6 +34,14 @@
         <button type="submit" class="btn-pill full">Se connecter</button>
         <div class="auth-error" id="loginError"></div>
       </form>
+
+      <form id="otpForm" class="hidden">
+        <div class="auth-sub" style="margin-bottom:16px;">Un code de vérification a été envoyé à <b id="otpEmailLabel"></b>. Il expire dans 10 minutes.</div>
+        <div class="field"><label>Code à 6 chiffres</label><input type="text" id="otpCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" required autocomplete="one-time-code"></div>
+        <button type="submit" class="btn-pill full">Vérifier</button>
+        <button type="button" class="btn-outline full" id="otpBackBtn" style="margin-top:10px;">Retour</button>
+        <div class="auth-error" id="otpError"></div>
+      </form>
     </div>
   </div>
 </section>
@@ -43,6 +51,10 @@
   initTheme();
   if (getToken()) window.location.href = 'index.html';
 
+  const loginForm = document.getElementById('loginForm');
+  const otpForm = document.getElementById('otpForm');
+  let pendingEmail = '';
+
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
@@ -51,6 +63,42 @@
     errorEl.textContent = '';
     try {
       const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      if (data.otpRequired) {
+        pendingEmail = data.email;
+        document.getElementById('otpEmailLabel').textContent = data.email;
+        loginForm.classList.add('hidden');
+        otpForm.classList.remove('hidden');
+        document.getElementById('otpCode').focus();
+        return;
+      }
+      if (!Object.keys(ROLE_LABELS).includes(data.user.role)) {
+        errorEl.textContent = "Ce compte n'a pas les droits pour accéder au back-office.";
+        return;
+      }
+      setToken(data.accessToken);
+      setIdentity(data.user);
+      window.location.href = 'index.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+    }
+  });
+
+  document.getElementById('otpBackBtn').addEventListener('click', () => {
+    otpForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+    document.getElementById('otpError').textContent = '';
+    otpForm.reset();
+  });
+
+  otpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('otpError');
+    errorEl.textContent = '';
+    try {
+      const data = await api('/auth/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify({ email: pendingEmail, code: document.getElementById('otpCode').value.trim() }),
+      });
       if (!Object.keys(ROLE_LABELS).includes(data.user.role)) {
         errorEl.textContent = "Ce compte n'a pas les droits pour accéder au back-office.";
         return;

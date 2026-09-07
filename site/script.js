@@ -158,8 +158,8 @@
     }
   }
 
+  let ffIndex = 0;
   if (ffSegs.length) {
-    let ffIndex = 0;
     let ffTimer = setInterval(() => {
       ffIndex = (ffIndex + 1) % ffSegs.length;
       setFfSlide(ffIndex);
@@ -226,9 +226,11 @@
   }
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-open-offer]')) { e.preventDefault(); openOfferModal(); return; }
-    if (e.target.closest('[data-close-offer]')) { closeOfferModal(); return; }
+    // Checked before data-close-offer so a button with both (e.g. the modal's
+    // "Réserver cette offre") still pre-selects the offer before closing.
     const reserveTrigger = e.target.closest('[data-reserve-offer]');
     if (reserveTrigger) selectOfferInForm(reserveTrigger.getAttribute('data-reserve-offer'), reserveTrigger.getAttribute('data-reserve-name'));
+    if (e.target.closest('[data-close-offer]')) { closeOfferModal(); return; }
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOfferModal(); });
 
@@ -285,6 +287,64 @@
     }
   }
 
+  // Hero section + its detail modal — driven by whichever offer the admin
+  // marked isHero (see admin/modules/offers.js). Falls back to whatever's
+  // hardcoded in index.html if no hero offer is set or the API is unreachable.
+  function applyHeroOffer(offer) {
+    if (!offer) return;
+
+    if (offer.heroWelcomeText) offerText.welcome = offer.heroWelcomeText;
+    if (offer.heroHeadline) offerText.headline = escapeHtml(offer.heroHeadline).replace(/\n/g, '<br>');
+    if (offer.heroPinTitle) pins[OFFER_SLIDE_INDEX].title = offer.heroPinTitle;
+    if (offer.heroPinSub) pins[OFFER_SLIDE_INDEX].sub = ' · ' + offer.heroPinSub;
+    const heroImg = offer.images && offer.images[0];
+    if (heroImg && ffBgImgs[OFFER_SLIDE_INDEX]) ffBgImgs[OFFER_SLIDE_INDEX].src = heroImg;
+    setFfSlide(ffIndex); // re-render whichever slide is currently showing
+
+    const setText = (id, value) => { const el = document.getElementById(id); if (el && value) el.textContent = value; };
+    const modalBgImg = document.getElementById('modalBgImg');
+    if (modalBgImg && heroImg) modalBgImg.src = heroImg;
+    setText('modalWelcome', offer.heroWelcomeText);
+    setText('modalHeading', offer.modalHeading);
+    setText('modalDates', offer.modalDatesLabel);
+    setText('modalNote', offer.modalNote);
+
+    const priceRow = document.getElementById('modalPriceRow');
+    if (priceRow && offer.priceTiers && offer.priceTiers.length) {
+      priceRow.innerHTML = offer.priceTiers.map((t, i) => `
+        <div class="osp-chip${i === 1 ? ' highlight' : ''}"><span>${escapeHtml(t.label)}</span><b>${escapeHtml(t.amount)}</b></div>
+      `).join('');
+    }
+
+    const included = document.getElementById('modalIncluded');
+    if (included && offer.includedItems && offer.includedItems.length) {
+      included.innerHTML = offer.includedItems.map((i) => `<div>${escapeHtml(i)}</div>`).join('');
+    }
+
+    const breakdown = document.getElementById('modalPricingBreakdown');
+    if (breakdown && offer.modalPricingBreakdown && offer.modalPricingBreakdown.length) {
+      breakdown.innerHTML = offer.modalPricingBreakdown.map((r) => `
+        <div class="row${r.highlight ? ' save' : ''}"><span>${escapeHtml(r.label)}</span><b>${escapeHtml(r.amount)}</b></div>
+      `).join('');
+    }
+
+    const itinerary = document.getElementById('modalItinerary');
+    if (itinerary && offer.itinerary && offer.itinerary.length) {
+      itinerary.innerHTML = offer.itinerary.map((d) => `
+        <div class="itinerary-day">
+          <div class="date">${escapeHtml(d.dateLabel)}</div>
+          <div><h4>${escapeHtml(d.title)}</h4>${d.description ? `<p>${escapeHtml(d.description)}</p>` : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    const reserveBtn = document.getElementById('modalReserveBtn');
+    if (reserveBtn) {
+      reserveBtn.setAttribute('data-reserve-offer', offer._id);
+      reserveBtn.setAttribute('data-reserve-name', offer.title);
+    }
+  }
+
   async function loadOffers() {
     const stack = document.getElementById('offersStack');
     const surMesureCard = stack ? stack.querySelector('.offer-card-sur-mesure') : null;
@@ -299,6 +359,7 @@
         stack.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
       }
       populateOfferSelect(offers);
+      applyHeroOffer(offers.find((o) => o.isHero));
     } catch (err) {
       console.error('Vakpon Tours: could not load offers from the API', err);
     }

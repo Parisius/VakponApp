@@ -49,7 +49,7 @@ as **subpaths of one domain**, not separate sites (that's what the
 `IS_LOCAL` check above assumes):
 
 - `https://vakpon-tours.com/` → `site/`'s contents
-- `https://vakpon-tours.com/admin/index.html` → the `admin/` folder
+- `https://vakpon-tours.com/management/index.html` → the `admin/` folder (published at `/management/` — folder name unchanged, only its public URL differs)
 - `https://vakpon-tours.com/espace-client/index.html` → the `espace-client/` folder
 
 ### Option A — plain Nginx

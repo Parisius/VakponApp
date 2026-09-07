@@ -124,7 +124,7 @@
         </div>
         <div class="ff-menu-contact">
           <span>vakpontours@gmail.com</span>
-          <span>+229 01 62 16 00 29</span>
+          <span>+229 01 69 84 66 80</span>
           <span>Cotonou, Bénin</span>
         </div>
         <div class="ff-menu-social">
@@ -145,7 +145,7 @@
   </div>
   <div class="hero-ff-content">
     <div>
-      <div class="hero-ff-welcome" id="ffWelcome">🇧Offre Spéciale : Places Limitées</div>
+      <div class="hero-ff-welcome" id="ffWelcome">🇧Offre Spéciale : Du 1er au 7 Octobre</div>
       <h1 id="ffHeadline">Pack Séjour Bénin<br>7 jours / 6 nuits dès 2 232€</h1>
       <button type="button" class="hero-ff-cta show" id="ffCta">Voir l'offre complète <span>→</span></button>
     </div>
@@ -170,18 +170,18 @@
 <div class="offer-modal" id="offerModal">
   <div class="offer-modal-backdrop" data-close-offer></div>
   <div class="offer-modal-panel">
-    <div class="offer-modal-bg"><img src="images/route-des-captifs.jpg" alt="Pack Séjour Bénin"></div>
+    <div class="offer-modal-bg"><img id="modalBgImg" src="images/route-des-captifs.jpg" alt="Pack Séjour Bénin"></div>
     <button type="button" class="offer-modal-close" data-close-offer aria-label="Fermer">
       <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
     <div class="offer-modal-scroll">
       <div class="offer-special-head reveal">
-        <div class="eyebrow"><span class="dot"></span>Offre Spéciale : Places Limitées</div>
-        <h2 style="font-size:clamp(26px,3.6vw,40px);">Pack Séjour Bénin 7 jours / 6 nuits</h2>
+        <div class="eyebrow"><span class="dot"></span><span id="modalWelcome">Offre Spéciale : Places Limitées</span></div>
+        <h2 id="modalHeading" style="font-size:clamp(26px,3.6vw,40px);">Pack Séjour Bénin 7 jours / 6 nuits</h2>
       </div>
-      <div class="offer-special-dates">Du 30 septembre au 6 octobre 2026</div>
+      <div class="offer-special-dates" id="modalDates">Du 1er Octobre au 7 octobre 2026</div>
 
-      <div class="offer-special-price-row">
+      <div class="offer-special-price-row" id="modalPriceRow">
         <div class="osp-chip"><span>Tarif individuel</span><b>2 480 € / pers.</b></div>
         <div class="osp-chip highlight"><span>Groupe 10+ (-10%)</span><b>2 232 € / pers.</b></div>
         <div class="osp-chip"><span>Total pour 10 personnes</span><b>22 320 €</b></div>
@@ -190,7 +190,7 @@
       <div class="offer-special-grid">
         <div>
           <div class="o-included-label"> LE FORFAIT COMPREND</div>
-          <div class="special-included">
+          <div class="special-included" id="modalIncluded">
             <div>Vol A/R France – Cotonou</div>
             <div>6 nuits d'hébergement</div>
             <div>Pension complète</div>
@@ -204,48 +204,50 @@
         </div>
         <div>
           <div class="special-pricing">
-            <div class="row"><span>Prix normal</span><b>2 480 € / pers.</b></div>
-            <div class="row"><span>Prix groupe (10+)</span><b>2 232 € / pers.</b></div>
-            <div class="row save"><span>Économie réalisée</span><b>248 € / pers.</b></div>
-            <a href="#contact" class="btn-pill" data-close-offer style="width:100%;justify-content:center;margin-top:24px;">Réserver cette offre</a>
+            <div id="modalPricingBreakdown">
+              <div class="row"><span>Prix normal</span><b>2 480 € / pers.</b></div>
+              <div class="row"><span>Prix groupe (10+)</span><b>2 232 € / pers.</b></div>
+              <div class="row save"><span>Économie réalisée</span><b>248 € / pers.</b></div>
+            </div>
+            <a href="#contact" class="btn-pill" data-close-offer id="modalReserveBtn" style="width:100%;justify-content:center;margin-top:24px;">Réserver cette offre</a>
           </div>
         </div>
       </div>
 
       <div>
         <div class="o-included-label">PROGRAMME INDICATIF</div>
-        <div class="itinerary">
+        <div class="itinerary" id="modalItinerary">
           <div class="itinerary-day">
-            <div class="date">30 sept. - Arrivée</div>
+            <div class="date">1er oct. - Arrivée</div>
             <div><h4>Arrivée au Bénin</h4><p>Accueil à l'aéroport de Cotonou, transfert à l'hôtel, installation et dîner.</p></div>
           </div>
           <div class="itinerary-day">
-            <div class="date">1 oct. - Cotonou</div>
+            <div class="date">2 oct. - Cotonou</div>
             <div><h4>Découverte de Cotonou</h4><p>Découverte de Cotonou et de ses principaux sites touristiques. Pension complète.</p></div>
           </div>
           <div class="itinerary-day">
-            <div class="date">2 oct. - Ganvié</div>
+            <div class="date">3 oct. - Ganvié</div>
             <div><h4>Cité lacustre de Ganvié</h4><p>Excursion à la cité lacustre de Ganvié et découverte de son patrimoine.</p></div>
           </div>
           <div class="itinerary-day">
-            <div class="date">3 oct. - Ouidah</div>
+            <div class="date">4 oct. - Ouidah</div>
             <div><h4>Route des Esclaves</h4><p>Découverte historique et culturelle de Ouidah : Route des Esclaves, Porte du Non-Retour et patrimoine local.</p></div>
           </div>
           <div class="itinerary-day">
-            <div class="date">4 oct. - Porto-Novo</div>
+            <div class="date">5 oct. - Porto-Novo</div>
             <div><h4>Capitale politique</h4><p>Visite de Porto-Novo, capitale politique du Bénin, et découverte de son patrimoine.</p></div>
           </div>
           <div class="itinerary-day">
-            <div class="date">5 oct. - Détente</div>
+            <div class="date">6 oct. - Détente</div>
             <div><h4>Journée découverte &amp; détente</h4><p>Activités touristiques, shopping et temps libre.</p></div>
           </div>
           <div class="itinerary-day">
-            <div class="date">6 oct. - Retour</div>
+            <div class="date">7 oct. - Retour</div>
             <div><h4>Retour en France</h4><p>Petit-déjeuner, transfert vers l'aéroport de Cotonou et vol retour.</p></div>
           </div>
         </div>
       </div>
-      <p class="offer-special-note">Le programme et les horaires peuvent être ajustés selon les horaires de vol et les disponibilités des hôtels.</p>
+      <p class="offer-special-note" id="modalNote">Le programme et les horaires peuvent être ajustés selon les horaires de vol et les disponibilités des hôtels.</p>
     </div>
   </div>
 </div>
@@ -331,7 +333,7 @@
       <p>Ce formulaire est une demande de réservation. Remplissez vos préférences et notre équipe vous répondra sous 24 heures avec une confirmation et les modalités de paiement.</p>
       <div class="contact-detail"><span>EMAIL</span><b>vakpontours@gmail.com</b></div>
       <div class="contact-detail"><span>TÉLÉPHONE (FR)</span><b>+33 7 46 21 77 96</b></div>
-      <div class="contact-detail"><span>TÉLÉPHONE (BJ)</span><b>+229 01 62 16 00 29</b></div>
+      <div class="contact-detail"><span>TÉLÉPHONE (BJ)</span><b>+229 01 69 84 66 80</b></div>
       <div class="contact-detail"><span>LOCALISATION</span><b>Cotonou, Bénin</b></div>
     </div>
     <form class="form-card reveal" id="contactForm">
@@ -397,7 +399,7 @@
         <h4>NOUS REJOINDRE</h4>
         <ul>
           <li><a href="mailto:vakpontours@gmail.com">vakpontours@gmail.com</a></li>
-          <li><a href="tel:+2290162160029">+229 01 62 16 00 29</a></li>
+          <li><a href="tel:+2290169846680">+229 01 69 84 66 80</a></li>
           <li>Cotonou, Bénin</li>
         </ul>
       </div>
