@@ -47,6 +47,28 @@
   const ESPACE_CLIENT_URL = IS_LOCAL ? 'http://localhost:5502/index.html' : 'https://vakpon-tours.com/espace-client/index.html';
   document.querySelectorAll('.espace-client-link').forEach((el) => { el.href = ESPACE_CLIENT_URL; });
 
+  // Visitor tracking — fires once per pageview, read from the admin's new
+  // Analytics page. Same backend a future site can reuse via /api/analytics.js.
+  (function trackPageview() {
+    try {
+      const params = new URLSearchParams(location.search);
+      const payload = JSON.stringify({
+        site: 'vakpon-tours',
+        path: location.pathname,
+        referrer: document.referrer || '',
+        utmSource: params.get('utm_source') || undefined,
+        utmMedium: params.get('utm_medium') || undefined,
+        utmCampaign: params.get('utm_campaign') || undefined,
+      });
+      const endpoint = `${API_BASE}/analytics/collect`;
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(endpoint, new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
+    } catch (e) { /* never block the page for analytics */ }
+  })();
+
   function escapeHtml(str) {
     return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
