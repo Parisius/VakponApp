@@ -229,10 +229,16 @@
   const ffMenuToggle = document.getElementById('ffMenuToggle');
   const ffMenuPanel = document.getElementById('ffMenuPanel');
   if (ffMenuToggle) {
-    ffMenuToggle.addEventListener('click', () => ffMenuPanel.classList.toggle('open'));
-    document.addEventListener('click', (e) => {
-      if (!ffMenuToggle.contains(e.target) && !ffMenuPanel.contains(e.target)) ffMenuPanel.classList.remove('open');
+    const closeFfMenu = () => { ffMenuPanel.classList.remove('open'); document.body.style.overflow = ''; };
+    ffMenuToggle.addEventListener('click', () => {
+      const opening = !ffMenuPanel.classList.contains('open');
+      ffMenuPanel.classList.toggle('open', opening);
+      document.body.style.overflow = opening ? 'hidden' : '';
     });
+    document.addEventListener('click', (e) => {
+      if (!ffMenuToggle.contains(e.target) && !ffMenuPanel.contains(e.target)) closeFfMenu();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFfMenu(); });
   }
 
   // Special offer modal — delegated so it also works on offer cards
