@@ -222,6 +222,17 @@
      background follows the theme, so the button must too, not the fixed
      white used for the rest of the (always-dark) hero header. */
   .hero-ff-menu.is-open{color:var(--text);}
+  /* Mirrors the hero's own menu toggle so the same full-screen panel stays
+     reachable from the sticky header once the hero has scrolled out of view.
+     Hidden on desktop (that width uses the plain <nav> links instead). */
+  .site-header-menu-toggle{
+    display:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+    background:transparent;color:inherit;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .site-header-menu-toggle svg{width:17px;height:17px;}
+  .site-header-menu-toggle .icon-close{display:none;}
+  .site-header-menu-toggle.is-open .icon-open{display:none;}
+  .site-header-menu-toggle.is-open .icon-close{display:inline-flex;}
   .hero-ff-menu-panel{
     position:absolute;top:70px;right:44px;z-index:5;background:var(--card);border:1px solid var(--line);
     border-radius:12px;padding:32px;display:none;grid-template-columns:1fr 1fr;gap:44px;min-width:420px;
@@ -326,6 +337,7 @@
     header .header-logo img{height:15px;}
     .nav-right{gap:8px;}
     .nav-right .ff-menu-social{display:none;}
+    .site-header-menu-toggle{display:flex;}
     .btn-pill{padding:11px 16px;font-size:13px;}
     .theme-toggle{width:34px;height:34px;}
   }

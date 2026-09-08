@@ -248,22 +248,24 @@
     typeLoop();
   }
 
-  const ffMenuToggle = document.getElementById('ffMenuToggle');
   const ffMenuPanel = document.getElementById('ffMenuPanel');
-  if (ffMenuToggle) {
-    const closeFfMenu = () => {
-      ffMenuPanel.classList.remove('open');
-      ffMenuToggle.classList.remove('is-open');
-      document.body.style.overflow = '';
-    };
-    ffMenuToggle.addEventListener('click', () => {
-      const opening = !ffMenuPanel.classList.contains('open');
+  // Two triggers share one panel: the hero's own button (visible at the top
+  // of the page) and the sticky header's (reachable once the hero has
+  // scrolled out of view — #siteHeader stays position:fixed above it).
+  const ffMenuToggles = [document.getElementById('ffMenuToggle'), document.getElementById('siteMenuToggle')].filter(Boolean);
+  if (ffMenuPanel && ffMenuToggles.length) {
+    const setOpen = (opening) => {
       ffMenuPanel.classList.toggle('open', opening);
-      ffMenuToggle.classList.toggle('is-open', opening);
+      ffMenuToggles.forEach((btn) => btn.classList.toggle('is-open', opening));
       document.body.style.overflow = opening ? 'hidden' : '';
+    };
+    const closeFfMenu = () => setOpen(false);
+    ffMenuToggles.forEach((btn) => {
+      btn.addEventListener('click', () => setOpen(!ffMenuPanel.classList.contains('open')));
     });
     document.addEventListener('click', (e) => {
-      if (!ffMenuToggle.contains(e.target) && !ffMenuPanel.contains(e.target)) closeFfMenu();
+      if (ffMenuToggles.some((btn) => btn.contains(e.target)) || ffMenuPanel.contains(e.target)) return;
+      closeFfMenu();
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFfMenu(); });
   }
