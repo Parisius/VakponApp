@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traductions | Vakpon Tours Back-office</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-logo">
+        <img class="logo-img logo-color" src="images/logo-color.png" alt="Vakpon Tours">
+        <img class="logo-img logo-white" src="images/logo-white.png" alt="Vakpon Tours">
+      </span>
+      <span class="sidebar-brand-label">Back-office</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="sidebar-foot-name" id="sidebarName">—</div>
+        <div class="sidebar-foot-role" id="sidebarRole">—</div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Ouvrir le menu">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.2-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input type="search" id="topSearch" placeholder="Rechercher une clé ou un texte...">
+      </div>
+      <div class="topbar-right">
+        <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+          <svg class="moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="topbar-avatar-btn" id="profileMenuBtn"><div class="avatar" id="topbarAvatar">?</div></button>
+        <div class="profile-menu" id="profileMenu">
+          <div class="profile-menu-head"><b id="profileMenuName">—</b><span id="profileMenuEmail">—</span></div>
+          <button class="danger" id="logoutBtn">Déconnexion</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="view-head">
+        <h1>Traductions</h1>
+        <div style="color:var(--muted);font-size:13.5px;max-width:480px;">
+          Texte du site (menu, boutons, sections, formulaire, pied de page). Le contenu des offres se modifie depuis la page Offres.
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="translationsTable">
+          <thead><tr><th style="width:26%;">Clé</th><th>Français</th><th>Anglais</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="modules/shared.js"></script>
+<script src="modules/translations.js"></script>
+</body>
+</html>

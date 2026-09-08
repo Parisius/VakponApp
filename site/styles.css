@@ -48,6 +48,14 @@
   }
   .theme-toggle:hover{background:rgba(128,128,128,.12);}
   .theme-toggle svg{width:17px;height:17px;}
+  .lang-toggle{
+    width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+    background:transparent;color:inherit;cursor:pointer;font-family:'Inter',sans-serif;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    font-size:12px;font-weight:700;letter-spacing:.03em;
+    transition:border-color .2s,background .2s;
+  }
+  .lang-toggle:hover{background:rgba(128,128,128,.12);}
   .theme-toggle .sun{display:none;}
   html[data-theme="light"] .theme-toggle .moon{display:none;}
   html[data-theme="light"] .theme-toggle .sun{display:block;}
@@ -272,6 +280,18 @@
   .loc-chip-text{font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;}
   .loc-chip-text span#pinSub{font-weight:500;opacity:.85;}
   .loc-chip-text span#pinTitle{margin-right:4px;}
+
+  .hero-scroll-cue{
+    position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:3;
+    width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.4);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    animation:heroScrollBounce 2s ease-in-out infinite;transition:opacity .3s;
+  }
+  .hero-scroll-cue svg{width:16px;height:16px;}
+  .hero-scroll-cue:hover{border-color:#fff;}
+  .hero-ff.scrolled-past .hero-scroll-cue{opacity:0;pointer-events:none;}
+  @keyframes heroScrollBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
+  @media (prefers-reduced-motion: reduce){.hero-scroll-cue{animation:none;}}
 
   /* CONTACT */
   .contact-grid{display:grid;grid-template-columns:0.85fr 1.15fr;gap:70px;}

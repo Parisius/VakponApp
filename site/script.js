@@ -5,7 +5,11 @@
   document.querySelectorAll('[data-logo-white]').forEach(el => el.appendChild(logoTplWhite.content.cloneNode(true)));
 
   const header = document.getElementById('siteHeader');
-  window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 40));
+  const heroSection = document.querySelector('.hero-ff');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+    if (heroSection) heroSection.classList.toggle('scrolled-past', window.scrollY > 40);
+  });
 
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
@@ -93,6 +97,78 @@
     addEventListener('pagehide', sendDuration);
   });
 
+  // ===== i18n (FR/EN) =====
+  // Static chrome comes from GET /translations (admin/translations.html
+  // manages it); offer content uses each Offer's own *En fields (see pick()).
+  let currentLang = localStorage.getItem('vakpon-lang') || (document.documentElement.lang === 'en' ? 'en' : 'fr');
+  let translations = {};
+  let allOffers = [];
+  let currentModalOffer = null;
+
+  function t(key) {
+    const entry = translations[key];
+    return (entry && entry[currentLang]) || (entry && entry.fr) || '';
+  }
+
+  function pick(obj, field) {
+    if (!obj) return '';
+    const enValue = obj[field + 'En'];
+    return currentLang === 'en' && enValue ? enValue : obj[field];
+  }
+
+  function pickList(obj, field) {
+    if (!obj) return [];
+    const enValue = obj[field + 'En'];
+    return currentLang === 'en' && enValue && enValue.length ? enValue : (obj[field] || []);
+  }
+
+  function applyTranslations() {
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[key]) el.textContent = t(key);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+      const key = el.getAttribute('data-i18n-html');
+      if (translations[key]) el.innerHTML = t(key);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (translations[key]) el.placeholder = t(key);
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+      const key = el.getAttribute('data-i18n-aria');
+      if (translations[key]) el.setAttribute('aria-label', t(key));
+    });
+    document.querySelectorAll('.lang-toggle, [data-lang-toggle]').forEach((btn) => {
+      btn.textContent = currentLang === 'fr' ? 'EN' : 'FR';
+      btn.setAttribute('aria-label', currentLang === 'fr' ? 'Passer en anglais' : 'Switch to French');
+    });
+    if (translations['meta.title']) document.title = t('meta.title');
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && translations['meta.description']) metaDesc.setAttribute('content', t('meta.description'));
+
+    // Re-render everything driven by offer data in the new language.
+    if (allOffers.length) renderOffers(allOffers);
+    if (currentModalOffer) populateOfferModal(currentModalOffer);
+    setFfSlide(ffIndex);
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('vakpon-lang', lang);
+    applyTranslations();
+  }
+
+  fetch(`${API_BASE}/translations?site=vakpon-tours`)
+    .then((r) => r.json())
+    .then((dict) => { translations = dict; applyTranslations(); })
+    .catch(() => { /* falls back to the French baked into the HTML */ });
+
+  document.querySelectorAll('.lang-toggle, [data-lang-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => setLanguage(currentLang === 'fr' ? 'en' : 'fr'));
+  });
+
   function escapeHtml(str) {
     return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
@@ -120,7 +196,7 @@
     if (message) payload.message = message;
 
     submitBtn.disabled = true;
-    formNote.textContent = "Envoi en cours...";
+    formNote.textContent = t('form.sending');
     try {
       const res = await fetch(`${API_BASE}/reservations/public`, {
         method: 'POST',
@@ -132,11 +208,11 @@
         const errMsg = Array.isArray(body.message) ? body.message.join(' ') : (body.message || 'Une erreur est survenue.');
         throw new Error(errMsg);
       }
-      formNote.textContent = "Merci ! Votre demande de réservation a bien été enregistrée. Nous vous répondrons sous 24 heures.";
+      formNote.textContent = t('form.successMsg');
       contactForm.reset();
       trackEvent('conversion');
     } catch (err) {
-      formNote.textContent = `Erreur : ${err.message} Merci de réessayer ou de nous contacter directement.`;
+      formNote.textContent = t('form.errorMsg').replace('{msg}', err.message);
     } finally {
       submitBtn.disabled = false;
     }
@@ -175,29 +251,37 @@
   const ffWelcome = document.getElementById('ffWelcome');
   const ffHeadline = document.getElementById('ffHeadline');
   const ffCta = document.getElementById('ffCta');
-  const defaultText = { welcome: 'Avec Vakpon Tours', headline: 'Vivez une nouvelle façon<br>de découvrir le Bénin' };
-  const offerText = { welcome: 'Offre Spéciale : Places Limitées', headline: 'Pack Séjour Bénin<br>7 jours / 6 nuits <br> dès 2 232€' };
+  // Fallback hero offer text (used only if the active hero offer's own
+  // heroWelcomeText/heroHeadline are empty) — kept bilingual directly here
+  // since it mirrors the seeded "Pack Séjour Bénin" offer, not admin-managed UI chrome.
+  const offerTextFallback = {
+    welcome: { fr: 'Offre Spéciale : Places Limitées', en: 'Special Offer: Limited Spots' },
+    headline: { fr: 'Pack Séjour Bénin<br>7 jours / 6 nuits <br> dès 2 232€', en: 'Benin Stay Package<br>7 days / 6 nights <br> from €2,232' },
+  };
 
   const ffPin = document.getElementById('ffPin');
   const pinTitle = document.getElementById('pinTitle');
   const pinSub = document.getElementById('pinSub');
   // Per-slide data, keyed by the slide's .seg element (so inserting new offer
-  // slides never desyncs stale numeric indices from earlier renders).
+  // slides never desyncs stale numeric indices from earlier renders). Offer
+  // slides store just the offer reference — text is derived via pick() at
+  // render time so a language switch always shows the current selection.
   const slideMeta = new Map();
   let heroOffersList = [];
   {
+    // Static "patrimoine" slides — not admin-managed, kept bilingual directly here.
     const initialPins = [
-      { title: 'Route des Esclaves', sub: ' · Ouidah' },
-      { title: 'Collines de Dassa', sub: ' · Dassa-Zoumè' },
-      { title: 'Tata Somba', sub: ' · Boukoumbé' },
-      { title: 'Ganvié', sub: ' · Cité lacustre' },
-      { title: 'Porto-Novo', sub: ' · Capitale politique' },
-      { title: 'Statue Bio Guerra', sub: ' · Cotonou' },
+      { title: { fr: 'Route des Esclaves', en: 'Slave Route' }, sub: { fr: ' · Ouidah', en: ' · Ouidah' } },
+      { title: { fr: 'Collines de Dassa', en: 'Dassa Hills' }, sub: { fr: ' · Dassa-Zoumè', en: ' · Dassa-Zoumè' } },
+      { title: { fr: 'Tata Somba', en: 'Tata Somba' }, sub: { fr: ' · Boukoumbé', en: ' · Boukoumbé' } },
+      { title: { fr: 'Ganvié', en: 'Ganvié' }, sub: { fr: ' · Cité lacustre', en: ' · Lake Village' } },
+      { title: { fr: 'Porto-Novo', en: 'Porto-Novo' }, sub: { fr: ' · Capitale politique', en: ' · Political Capital' } },
+      { title: { fr: 'Statue Bio Guerra', en: 'Bio Guerra Statue' }, sub: { fr: ' · Cotonou', en: ' · Cotonou' } },
     ];
     Array.from(ffPaginationEl.querySelectorAll('.seg')).forEach((seg, i) => {
       slideMeta.set(seg, i === 0
-        ? { pinTitle: initialPins[0].title, pinSub: initialPins[0].sub, welcome: offerText.welcome, headline: offerText.headline, isOffer: true, offer: null }
-        : { pinTitle: initialPins[i].title, pinSub: initialPins[i].sub, isOffer: false, offer: null });
+        ? { pin: initialPins[0], isOffer: true, offer: null }
+        : { pin: initialPins[i], isOffer: false, offer: null });
     });
   }
 
@@ -212,12 +296,19 @@
     if (bgImgs[index]) bgImgs[index].classList.add('active');
     const meta = segs[index] && slideMeta.get(segs[index]);
     const isOffer = !!(meta && meta.isOffer);
-    if (ffWelcome) ffWelcome.textContent = isOffer ? meta.welcome : defaultText.welcome;
-    if (ffHeadline) ffHeadline.innerHTML = isOffer ? meta.headline : defaultText.headline;
+    const defaultWelcome = translations['hero.defaultWelcome'] ? t('hero.defaultWelcome') : 'Avec Vakpon Tours';
+    const defaultHeadline = translations['hero.defaultHeadline'] ? t('hero.defaultHeadline') : 'Vivez une nouvelle façon<br>de découvrir le Bénin';
+    if (ffWelcome) ffWelcome.textContent = isOffer ? (meta.offer ? pick(meta.offer, 'heroWelcomeText') : offerTextFallback.welcome[currentLang]) : defaultWelcome;
+    if (ffHeadline) ffHeadline.innerHTML = isOffer ? (meta.offer ? escapeHtml(pick(meta.offer, 'heroHeadline')).replace(/\n/g, '<br>') : offerTextFallback.headline[currentLang]) : defaultHeadline;
     if (ffCta) ffCta.classList.toggle('show', isOffer);
     if (meta && ffPin) {
-      pinTitle.textContent = meta.pinTitle;
-      pinSub.textContent = meta.pinSub;
+      if (isOffer && meta.offer) {
+        pinTitle.textContent = pick(meta.offer, 'heroPinTitle') || meta.offer.title;
+        pinSub.textContent = pick(meta.offer, 'heroPinSub') ? ' · ' + pick(meta.offer, 'heroPinSub') : '';
+      } else if (meta.pin) {
+        pinTitle.textContent = meta.pin.title[currentLang];
+        pinSub.textContent = meta.pin.sub[currentLang];
+      }
     }
   }
 
@@ -322,29 +413,29 @@
   function renderOfferCard(offer, index) {
     const isSpecial = !!offer.featured;
     const img = (offer.images && offer.images[0]) || 'images/route-des-captifs.jpg';
-    const included = (offer.includedItems || []).map(i => `<div>${escapeHtml(i)}</div>`).join('');
-    const pricing = (offer.priceTiers || []).map(t => `<div class="o-price-tier"><span>${escapeHtml(t.label)}</span><b>${escapeHtml(t.amount)}</b></div>`).join('');
-    const metaBits = [offer.durationLabel, offer.routeLabel].filter(Boolean);
+    const included = pickList(offer, 'includedItems').map(i => `<div>${escapeHtml(i)}</div>`).join('');
+    const pricing = (offer.priceTiers || []).map(tier => `<div class="o-price-tier"><span>${escapeHtml(pick(tier, 'label'))}</span><b>${escapeHtml(tier.amount)}</b></div>`).join('');
+    const metaBits = [pick(offer, 'durationLabel'), pick(offer, 'routeLabel')].filter(Boolean);
     const metaHtml = metaBits.length ? `<div class="o-meta"><b>${escapeHtml(metaBits[0])}</b>${metaBits[1] ? ' - ' + escapeHtml(metaBits[1]) : ''}</div>` : '';
-    const badge = isSpecial ? '<div class="o-badge">Offre Spéciale : Places Limitées</div>' : '';
+    const badge = isSpecial ? `<div class="o-badge">${escapeHtml(t('offerCard.specialBadge'))}</div>` : '';
     const cta = isSpecial
-      ? `<a href="#" class="btn-pill" data-open-offer>Voir l'offre complète</a>`
-      : `<a href="#contact" class="btn-pill" data-reserve-offer="${offer._id}" data-reserve-name="${escapeHtml(offer.title)}">Réserver ce package</a>`;
+      ? `<a href="#" class="btn-pill" data-open-offer>${escapeHtml(t('offerCard.viewFullOffer'))}</a>`
+      : `<a href="#contact" class="btn-pill" data-reserve-offer="${offer._id}" data-reserve-name="${escapeHtml(pick(offer, 'title'))}">${escapeHtml(t('offerCard.reserveBtn'))}</a>`;
     return `
       <div class="offer-card${isSpecial ? ' offer-card-special' : ''} reveal">
         <div class="o-info">
           ${badge}
-          <h3>${escapeHtml(offer.title)}</h3>
-          ${offer.quote ? `<div class="o-quote">« ${escapeHtml(offer.quote)} »</div>` : ''}
-          ${offer.description ? `<p class="o-desc">${escapeHtml(offer.description)}</p>` : ''}
-          ${included ? `<div class="o-included-label">CE QUI EST INCLUS</div><div class="o-included">${included}</div>` : ''}
+          <h3>${escapeHtml(pick(offer, 'title'))}</h3>
+          ${offer.quote ? `<div class="o-quote">« ${escapeHtml(pick(offer, 'quote'))} »</div>` : ''}
+          ${offer.description ? `<p class="o-desc">${escapeHtml(pick(offer, 'description'))}</p>` : ''}
+          ${included ? `<div class="o-included-label">${escapeHtml(t('common.includedLabel'))}</div><div class="o-included">${included}</div>` : ''}
           ${pricing ? `<div class="o-pricing">${pricing}</div>` : ''}
           ${cta}
           ${metaHtml}
         </div>
         <div class="o-media">
           <span class="o-index">${isSpecial ? '✦' : String(index + 1).padStart(2, '0')}</span>
-          <img src="${escapeHtml(img)}" alt="${escapeHtml(offer.title)}">
+          <img src="${escapeHtml(img)}" alt="${escapeHtml(pick(offer, 'title'))}">
         </div>
       </div>`;
   }
@@ -352,8 +443,11 @@
   function populateOfferSelect(offers) {
     const select = document.getElementById('resOffer');
     if (!select) return;
-    const options = offers.map(o => `<option value="${o._id}">${escapeHtml(o.title)}</option>`).join('');
+    const previousValue = select.value;
+    select.querySelectorAll('option[data-dynamic-offer]').forEach((o) => o.remove());
+    const options = offers.map(o => `<option data-dynamic-offer value="${o._id}">${escapeHtml(pick(o, 'title'))}</option>`).join('');
     select.insertAdjacentHTML('afterbegin', options);
+    if (previousValue) select.value = previousValue;
   }
 
   function selectOfferInForm(offerId, offerName) {
@@ -398,15 +492,8 @@
         ffBgEl.insertBefore(bgImg, bgImgs[i] || null);
       }
       const heroImg = offer.images && offer.images[0];
-      slideMeta.set(seg, {
-        pinTitle: offer.heroPinTitle || offer.title,
-        pinSub: offer.heroPinSub ? ' · ' + offer.heroPinSub : '',
-        welcome: offer.heroWelcomeText || offerText.welcome,
-        headline: offer.heroHeadline ? escapeHtml(offer.heroHeadline).replace(/\n/g, '<br>') : offerText.headline,
-        isOffer: true,
-        offer,
-      });
-      if (heroImg) { bgImg.src = heroImg; bgImg.alt = offer.title || ''; }
+      slideMeta.set(seg, { isOffer: true, offer });
+      if (heroImg) { bgImg.src = heroImg; bgImg.alt = pick(offer, 'title') || ''; }
     });
 
     setFfSlide(ffIndex); // re-render whichever slide is currently showing, in case its content just changed
@@ -419,29 +506,31 @@
 
     const heroImg = offer.images && offer.images[0];
     const setText = (id, value) => { const el = document.getElementById(id); if (el && value) el.textContent = value; };
+    currentModalOffer = offer;
     const modalBgImg = document.getElementById('modalBgImg');
     if (modalBgImg && heroImg) modalBgImg.src = heroImg;
-    setText('modalWelcome', offer.heroWelcomeText);
-    setText('modalHeading', offer.modalHeading);
-    setText('modalDates', offer.modalDatesLabel);
-    setText('modalNote', offer.modalNote);
+    setText('modalWelcome', pick(offer, 'heroWelcomeText'));
+    setText('modalHeading', pick(offer, 'modalHeading'));
+    setText('modalDates', pick(offer, 'modalDatesLabel'));
+    setText('modalNote', pick(offer, 'modalNote'));
 
     const priceRow = document.getElementById('modalPriceRow');
     if (priceRow && offer.priceTiers && offer.priceTiers.length) {
-      priceRow.innerHTML = offer.priceTiers.map((t, i) => `
-        <div class="osp-chip${i === 1 ? ' highlight' : ''}"><span>${escapeHtml(t.label)}</span><b>${escapeHtml(t.amount)}</b></div>
+      priceRow.innerHTML = offer.priceTiers.map((tier, i) => `
+        <div class="osp-chip${i === 1 ? ' highlight' : ''}"><span>${escapeHtml(pick(tier, 'label'))}</span><b>${escapeHtml(tier.amount)}</b></div>
       `).join('');
     }
 
     const included = document.getElementById('modalIncluded');
-    if (included && offer.includedItems && offer.includedItems.length) {
-      included.innerHTML = offer.includedItems.map((i) => `<div>${escapeHtml(i)}</div>`).join('');
+    const includedItems = pickList(offer, 'includedItems');
+    if (included && includedItems.length) {
+      included.innerHTML = includedItems.map((i) => `<div>${escapeHtml(i)}</div>`).join('');
     }
 
     const breakdown = document.getElementById('modalPricingBreakdown');
     if (breakdown && offer.modalPricingBreakdown && offer.modalPricingBreakdown.length) {
       breakdown.innerHTML = offer.modalPricingBreakdown.map((r) => `
-        <div class="row${r.highlight ? ' save' : ''}"><span>${escapeHtml(r.label)}</span><b>${escapeHtml(r.amount)}</b></div>
+        <div class="row${r.highlight ? ' save' : ''}"><span>${escapeHtml(pick(r, 'label'))}</span><b>${escapeHtml(r.amount)}</b></div>
       `).join('');
     }
 
@@ -449,8 +538,8 @@
     if (itinerary && offer.itinerary && offer.itinerary.length) {
       itinerary.innerHTML = offer.itinerary.map((d) => `
         <div class="itinerary-day">
-          <div class="date">${escapeHtml(d.dateLabel)}</div>
-          <div><h4>${escapeHtml(d.title)}</h4>${d.description ? `<p>${escapeHtml(d.description)}</p>` : ''}</div>
+          <div class="date">${escapeHtml(pick(d, 'dateLabel'))}</div>
+          <div><h4>${escapeHtml(pick(d, 'title'))}</h4>${d.description ? `<p>${escapeHtml(pick(d, 'description'))}</p>` : ''}</div>
         </div>
       `).join('');
     }
@@ -458,25 +547,32 @@
     const reserveBtn = document.getElementById('modalReserveBtn');
     if (reserveBtn) {
       reserveBtn.setAttribute('data-reserve-offer', offer._id);
-      reserveBtn.setAttribute('data-reserve-name', offer.title);
+      reserveBtn.setAttribute('data-reserve-name', pick(offer, 'title'));
     }
   }
 
-  async function loadOffers() {
+  // Renders everything derived from the offers list for the current
+  // language — called on first load and again on every language switch.
+  function renderOffers(offers) {
     const stack = document.getElementById('offersStack');
-    const surMesureCard = stack ? stack.querySelector('.offer-card-sur-mesure') : null;
+    if (stack) {
+      stack.querySelectorAll('.offer-card:not(.offer-card-sur-mesure)').forEach((el) => el.remove());
+      const surMesureCard = stack.querySelector('.offer-card-sur-mesure');
+      const html = offers.map(renderOfferCard).join('');
+      if (surMesureCard) surMesureCard.insertAdjacentHTML('beforebegin', html);
+      else stack.insertAdjacentHTML('afterbegin', html);
+      stack.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
+    }
+    populateOfferSelect(offers);
+    applyHeroOffers(offers);
+  }
+
+  async function loadOffers() {
     try {
       const res = await fetch(`${API_BASE}/offers`);
       if (!res.ok) throw new Error(`status ${res.status}`);
-      const offers = await res.json();
-      if (stack) {
-        const html = offers.map(renderOfferCard).join('');
-        if (surMesureCard) surMesureCard.insertAdjacentHTML('beforebegin', html);
-        else stack.insertAdjacentHTML('afterbegin', html);
-        stack.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
-      }
-      populateOfferSelect(offers);
-      applyHeroOffers(offers);
+      allOffers = await res.json();
+      renderOffers(allOffers);
     } catch (err) {
       console.error('Vakpon Tours: could not load offers from the API', err);
     }

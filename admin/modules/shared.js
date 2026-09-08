@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { view: 'offers', href: 'offers.html', label: 'Offres', group: 'Gestion', roles: ['admin', 'operations', 'marketing'] },
   { view: 'customers', href: 'customers.html', label: 'Clients (CRM)', group: 'Gestion', roles: ['admin', 'operations', 'service_client', 'support'] },
   { view: 'analytics', href: 'analytics.html', label: 'Analytics', group: 'Gestion', roles: ['admin', 'operations', 'marketing'] },
+  { view: 'translations', href: 'translations.html', label: 'Traductions', group: 'Gestion', roles: ['admin', 'operations', 'marketing'] },
   { view: 'team', href: 'team.html', label: 'Équipe', group: 'Administration', roles: ['admin', 'operations'] },
   { view: 'logs', href: 'logs.html', label: 'Journal', group: 'Administration', roles: ['admin', 'operations'] },
 ];
@@ -31,6 +32,7 @@ const NAV_ICONS = {
   team: '<svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="9" r="2.4" stroke="currentColor" stroke-width="1.7"/><path d="M2.5 20c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5M14.5 20c.3-2.3 1.8-4.1 3.9-4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
   logs: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   analytics: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  translations: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 5h10M9 3v2M9 5c0 4-2.5 7-6 8.5M6 9.5c1.5 2 4 3.5 6.5 4M14 21l4-9 4 9M15.3 18h5.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 
 // ====== AUTH / IDENTITY ======

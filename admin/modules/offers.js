@@ -76,28 +76,42 @@ function render() {
 
 function openOfferForm(id) {
   const o = id ? offersCache.find((x) => x._id === id) : {
-    title: '', slug: '', quote: '', description: '', durationLabel: '', routeLabel: '',
-    includedItems: [], priceTiers: [], images: [], featured: false, active: true,
-    isHero: false, heroWelcomeText: '', heroHeadline: '', heroPinTitle: '', heroPinSub: '',
-    modalHeading: '', modalDatesLabel: '', modalPricingBreakdown: [], itinerary: [], modalNote: '',
+    title: '', titleEn: '', slug: '', quote: '', quoteEn: '', description: '', descriptionEn: '',
+    durationLabel: '', durationLabelEn: '', routeLabel: '', routeLabelEn: '',
+    includedItems: [], includedItemsEn: [], priceTiers: [], images: [], featured: false, active: true,
+    isHero: false, heroWelcomeText: '', heroWelcomeTextEn: '', heroHeadline: '', heroHeadlineEn: '',
+    heroPinTitle: '', heroPinTitleEn: '', heroPinSub: '', heroPinSubEn: '',
+    modalHeading: '', modalHeadingEn: '', modalDatesLabel: '', modalDatesLabelEn: '',
+    modalPricingBreakdown: [], itinerary: [], modalNote: '', modalNoteEn: '',
   };
   const body = document.getElementById('offerModalBody');
   body.innerHTML = `
     <h2 style="margin-bottom:16px;">${id ? "Modifier l'offre" : 'Nouvelle offre'}</h2>
     <div class="form-grid">
-      <div class="field"><label>Titre</label><input id="f-title" value="${o.title || ''}"></div>
-      <div class="field"><label>Slug (URL)</label><input id="f-slug" value="${o.slug || ''}"></div>
+      <div class="field"><label>Titre (FR)</label><input id="f-title" value="${o.title || ''}"></div>
+      <div class="field"><label>Titre (EN)</label><input id="f-titleEn" value="${o.titleEn || ''}"></div>
     </div>
-    <div class="field"><label>Citation</label><input id="f-quote" value="${o.quote || ''}"></div>
-    <div class="field"><label>Description</label><textarea id="f-desc">${o.description || ''}</textarea></div>
+    <div class="field"><label>Slug (URL)</label><input id="f-slug" value="${o.slug || ''}"></div>
     <div class="form-grid">
-      <div class="field"><label>Durée (ex: 7 jours · 6 nuits)</label><input id="f-duration" value="${o.durationLabel || ''}"></div>
-      <div class="field"><label>Itinéraire (ex: Cotonou · Ouidah)</label><input id="f-route" value="${o.routeLabel || ''}"></div>
+      <div class="field"><label>Citation (FR)</label><input id="f-quote" value="${o.quote || ''}"></div>
+      <div class="field"><label>Citation (EN)</label><input id="f-quoteEn" value="${o.quoteEn || ''}"></div>
     </div>
-    <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Ce qui est inclus</label>
+    <div class="form-grid">
+      <div class="field"><label>Description (FR)</label><textarea id="f-desc">${o.description || ''}</textarea></div>
+      <div class="field"><label>Description (EN)</label><textarea id="f-descEn">${o.descriptionEn || ''}</textarea></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Durée FR (ex: 7 jours · 6 nuits)</label><input id="f-duration" value="${o.durationLabel || ''}"></div>
+      <div class="field"><label>Durée EN (ex: 7 days · 6 nights)</label><input id="f-durationEn" value="${o.durationLabelEn || ''}"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Itinéraire FR (ex: Cotonou · Ouidah)</label><input id="f-route" value="${o.routeLabel || ''}"></div>
+      <div class="field"><label>Itinéraire EN</label><input id="f-routeEn" value="${o.routeLabelEn || ''}"></div>
+    </div>
+    <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Ce qui est inclus (FR / EN)</label>
     <div id="includedList"></div>
     <button type="button" class="small-btn" id="addIncluded">+ Ajouter</button>
-    <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Tarifs</label>
+    <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Tarifs (label FR / EN + montant)</label>
     <div id="priceList"></div>
     <button type="button" class="small-btn" id="addPrice">+ Ajouter</button>
     <div class="form-grid" style="margin-top:16px;">
@@ -111,27 +125,42 @@ function openOfferForm(id) {
     </label>
     <div id="heroFields" style="${o.isHero ? '' : 'display:none;'}">
       <div class="form-grid">
-        <div class="field"><label>Texte au-dessus du titre (héros)</label><input id="f-heroWelcome" value="${o.heroWelcomeText || ''}"></div>
-        <div class="field"><label>Titre du héros (une ligne = un retour à la ligne)</label><textarea id="f-heroHeadline">${o.heroHeadline || ''}</textarea></div>
+        <div class="field"><label>Texte au-dessus du titre FR</label><input id="f-heroWelcome" value="${o.heroWelcomeText || ''}"></div>
+        <div class="field"><label>Texte au-dessus du titre EN</label><input id="f-heroWelcomeEn" value="${o.heroWelcomeTextEn || ''}"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Lieu affiché (titre)</label><input id="f-heroPinTitle" value="${o.heroPinTitle || ''}"></div>
-        <div class="field"><label>Lieu affiché (sous-titre)</label><input id="f-heroPinSub" value="${o.heroPinSub || ''}"></div>
+        <div class="field"><label>Titre du héros FR (une ligne = un retour à la ligne)</label><textarea id="f-heroHeadline">${o.heroHeadline || ''}</textarea></div>
+        <div class="field"><label>Titre du héros EN</label><textarea id="f-heroHeadlineEn">${o.heroHeadlineEn || ''}</textarea></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Titre de la fenêtre détaillée</label><input id="f-modalHeading" value="${o.modalHeading || ''}"></div>
-        <div class="field"><label>Dates affichées (texte libre)</label><input id="f-modalDates" value="${o.modalDatesLabel || ''}"></div>
+        <div class="field"><label>Lieu affiché FR (titre)</label><input id="f-heroPinTitle" value="${o.heroPinTitle || ''}"></div>
+        <div class="field"><label>Lieu affiché EN (titre)</label><input id="f-heroPinTitleEn" value="${o.heroPinTitleEn || ''}"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Lieu affiché FR (sous-titre)</label><input id="f-heroPinSub" value="${o.heroPinSub || ''}"></div>
+        <div class="field"><label>Lieu affiché EN (sous-titre)</label><input id="f-heroPinSubEn" value="${o.heroPinSubEn || ''}"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Titre de la fenêtre FR</label><input id="f-modalHeading" value="${o.modalHeading || ''}"></div>
+        <div class="field"><label>Titre de la fenêtre EN</label><input id="f-modalHeadingEn" value="${o.modalHeadingEn || ''}"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Dates affichées FR (texte libre)</label><input id="f-modalDates" value="${o.modalDatesLabel || ''}"></div>
+        <div class="field"><label>Dates affichées EN</label><input id="f-modalDatesEn" value="${o.modalDatesLabelEn || ''}"></div>
       </div>
 
-      <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Détail des prix (fenêtre détaillée)</label>
+      <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Détail des prix — label FR / EN + montant</label>
       <div id="pricingBreakdownList"></div>
       <button type="button" class="small-btn" id="addPricingRow">+ Ajouter une ligne</button>
 
-      <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Programme jour par jour</label>
+      <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Programme jour par jour (FR / EN)</label>
       <div id="itineraryList"></div>
       <button type="button" class="small-btn" id="addItineraryDay">+ Ajouter un jour</button>
 
-      <div class="field" style="margin-top:16px;"><label>Note de bas de page (fenêtre détaillée)</label><textarea id="f-modalNote">${o.modalNote || ''}</textarea></div>
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="field"><label>Note de bas de page FR</label><textarea id="f-modalNote">${o.modalNote || ''}</textarea></div>
+        <div class="field"><label>Note de bas de page EN</label><textarea id="f-modalNoteEn">${o.modalNoteEn || ''}</textarea></div>
+      </div>
     </div>
 
     <button class="btn-pill full" id="saveOfferBtn" style="margin-top:20px;">Enregistrer</button>
@@ -142,48 +171,52 @@ function openOfferForm(id) {
   const pricingBreakdownList = body.querySelector('#pricingBreakdownList');
   const itineraryList = body.querySelector('#itineraryList');
 
-  function addIncludedRow(value = '') {
+  function addIncludedRow(value = '', valueEn = '') {
     const row = document.createElement('div');
     row.className = 'included-row';
-    row.innerHTML = `<input value="${value}"><button type="button" class="small-btn">✕</button>`;
+    row.innerHTML = `<input data-field="fr" placeholder="FR" value="${value}"><input data-field="en" placeholder="EN" value="${valueEn}"><button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     includedList.appendChild(row);
   }
-  function addPriceRow(label = '', amount = '') {
+  function addPriceRow(label = '', labelEn = '', amount = '') {
     const row = document.createElement('div');
     row.className = 'price-row';
-    row.innerHTML = `<input placeholder="Label" value="${label}"><input placeholder="Montant" value="${amount}"><button type="button" class="small-btn">✕</button>`;
+    row.innerHTML = `<input data-field="label" placeholder="Label FR" value="${label}"><input data-field="labelEn" placeholder="Label EN" value="${labelEn}"><input data-field="amount" placeholder="Montant" value="${amount}"><button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     priceList.appendChild(row);
   }
-  function addPricingBreakdownRow(label = '', amount = '', highlight = false) {
+  function addPricingBreakdownRow(label = '', labelEn = '', amount = '', highlight = false) {
     const row = document.createElement('div');
     row.className = 'price-row';
     row.innerHTML = `
-      <input placeholder="Label (ex: Prix normal)" value="${label}">
-      <input placeholder="Montant" value="${amount}">
+      <input data-field="label" placeholder="Label FR (ex: Prix normal)" value="${label}">
+      <input data-field="labelEn" placeholder="Label EN" value="${labelEn}">
+      <input data-field="amount" placeholder="Montant" value="${amount}">
       <label style="display:flex;align-items:center;gap:4px;font-size:11.5px;white-space:nowrap;"><input type="checkbox" class="pb-highlight" ${highlight ? 'checked' : ''}> Mise en avant</label>
       <button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     pricingBreakdownList.appendChild(row);
   }
-  function addItineraryRow(dateLabel = '', title = '', description = '') {
+  function addItineraryRow(dateLabel = '', dateLabelEn = '', title = '', titleEn = '', description = '', descriptionEn = '') {
     const row = document.createElement('div');
     row.className = 'included-row';
     row.style.flexWrap = 'wrap';
     row.innerHTML = `
-      <input placeholder="Date (ex: 1er oct. - Arrivée)" value="${dateLabel}" style="flex:0 0 100%;margin-bottom:6px;">
-      <input placeholder="Titre du jour" value="${title}" style="flex:1;">
-      <input placeholder="Description" value="${description}" style="flex:2;">
+      <input data-field="dateLabel" placeholder="Date FR (ex: 1er oct. - Arrivée)" value="${dateLabel}" style="flex:1 1 45%;margin-bottom:6px;">
+      <input data-field="dateLabelEn" placeholder="Date EN (ex: Oct 1 - Arrival)" value="${dateLabelEn}" style="flex:1 1 45%;margin-bottom:6px;">
+      <input data-field="title" placeholder="Titre du jour FR" value="${title}" style="flex:1;">
+      <input data-field="titleEn" placeholder="Titre du jour EN" value="${titleEn}" style="flex:1;">
+      <input data-field="description" placeholder="Description FR" value="${description}" style="flex:2;">
+      <input data-field="descriptionEn" placeholder="Description EN" value="${descriptionEn}" style="flex:2;">
       <button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     itineraryList.appendChild(row);
   }
 
-  (o.includedItems || []).forEach((i) => addIncludedRow(i));
-  (o.priceTiers || []).forEach((p) => addPriceRow(p.label, p.amount));
-  (o.modalPricingBreakdown || []).forEach((p) => addPricingBreakdownRow(p.label, p.amount, p.highlight));
-  (o.itinerary || []).forEach((d) => addItineraryRow(d.dateLabel, d.title, d.description));
+  (o.includedItems || []).forEach((i, idx) => addIncludedRow(i, (o.includedItemsEn || [])[idx] || ''));
+  (o.priceTiers || []).forEach((p) => addPriceRow(p.label, p.labelEn, p.amount));
+  (o.modalPricingBreakdown || []).forEach((p) => addPricingBreakdownRow(p.label, p.labelEn, p.amount, p.highlight));
+  (o.itinerary || []).forEach((d) => addItineraryRow(d.dateLabel, d.dateLabelEn, d.title, d.titleEn, d.description, d.descriptionEn));
   body.querySelector('#addIncluded').addEventListener('click', () => addIncludedRow());
   body.querySelector('#addPrice').addEventListener('click', () => addPriceRow());
   body.querySelector('#addPricingRow').addEventListener('click', () => addPricingBreakdownRow());
@@ -193,36 +226,50 @@ function openOfferForm(id) {
   });
 
   body.querySelector('#saveOfferBtn').addEventListener('click', async () => {
+    const field = (row, name) => row.querySelector(`[data-field="${name}"]`)?.value || '';
+    const includedRows = [...includedList.querySelectorAll('.included-row')];
     const payload = {
       title: body.querySelector('#f-title').value,
+      titleEn: body.querySelector('#f-titleEn').value,
       slug: body.querySelector('#f-slug').value,
       quote: body.querySelector('#f-quote').value,
+      quoteEn: body.querySelector('#f-quoteEn').value,
       description: body.querySelector('#f-desc').value,
+      descriptionEn: body.querySelector('#f-descEn').value,
       durationLabel: body.querySelector('#f-duration').value,
+      durationLabelEn: body.querySelector('#f-durationEn').value,
       routeLabel: body.querySelector('#f-route').value,
-      includedItems: [...includedList.querySelectorAll('input')].map((i) => i.value).filter(Boolean),
-      priceTiers: [...priceList.querySelectorAll('.price-row')].map((row) => {
-        const inputs = row.querySelectorAll('input');
-        return { label: inputs[0].value, amount: inputs[1].value };
-      }).filter((p) => p.label && p.amount),
+      routeLabelEn: body.querySelector('#f-routeEn').value,
+      includedItems: includedRows.map((row) => field(row, 'fr')).filter(Boolean),
+      includedItemsEn: includedRows.map((row) => field(row, 'en')).filter(Boolean),
+      priceTiers: [...priceList.querySelectorAll('.price-row')].map((row) => (
+        { label: field(row, 'label'), labelEn: field(row, 'labelEn'), amount: field(row, 'amount') }
+      )).filter((p) => p.label && p.amount),
       featured: body.querySelector('#f-featured').checked,
       active: body.querySelector('#f-active').checked,
       isHero: body.querySelector('#f-hero').checked,
       heroWelcomeText: body.querySelector('#f-heroWelcome').value,
+      heroWelcomeTextEn: body.querySelector('#f-heroWelcomeEn').value,
       heroHeadline: body.querySelector('#f-heroHeadline').value,
+      heroHeadlineEn: body.querySelector('#f-heroHeadlineEn').value,
       heroPinTitle: body.querySelector('#f-heroPinTitle').value,
+      heroPinTitleEn: body.querySelector('#f-heroPinTitleEn').value,
       heroPinSub: body.querySelector('#f-heroPinSub').value,
+      heroPinSubEn: body.querySelector('#f-heroPinSubEn').value,
       modalHeading: body.querySelector('#f-modalHeading').value,
+      modalHeadingEn: body.querySelector('#f-modalHeadingEn').value,
       modalDatesLabel: body.querySelector('#f-modalDates').value,
+      modalDatesLabelEn: body.querySelector('#f-modalDatesEn').value,
       modalNote: body.querySelector('#f-modalNote').value,
-      modalPricingBreakdown: [...pricingBreakdownList.querySelectorAll('.price-row')].map((row) => {
-        const inputs = row.querySelectorAll('input[type="text"], input:not([type])');
-        return { label: inputs[0]?.value, amount: inputs[1]?.value, highlight: row.querySelector('.pb-highlight').checked };
-      }).filter((p) => p.label && p.amount),
-      itinerary: [...itineraryList.querySelectorAll('.included-row')].map((row) => {
-        const inputs = row.querySelectorAll('input');
-        return { dateLabel: inputs[0].value, title: inputs[1].value, description: inputs[2].value };
-      }).filter((d) => d.dateLabel && d.title),
+      modalNoteEn: body.querySelector('#f-modalNoteEn').value,
+      modalPricingBreakdown: [...pricingBreakdownList.querySelectorAll('.price-row')].map((row) => (
+        { label: field(row, 'label'), labelEn: field(row, 'labelEn'), amount: field(row, 'amount'), highlight: row.querySelector('.pb-highlight').checked }
+      )).filter((p) => p.label && p.amount),
+      itinerary: [...itineraryList.querySelectorAll('.included-row')].map((row) => ({
+        dateLabel: field(row, 'dateLabel'), dateLabelEn: field(row, 'dateLabelEn'),
+        title: field(row, 'title'), titleEn: field(row, 'titleEn'),
+        description: field(row, 'description'), descriptionEn: field(row, 'descriptionEn'),
+      })).filter((d) => d.dateLabel && d.title),
     };
     try {
       if (id) await api(`/admin/offers/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
