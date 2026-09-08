@@ -221,7 +221,10 @@
   .hero-ff-tag svg{width:14px;height:14px;color:var(--accent);}
   .hero-ff-top .header-logo{justify-self:center;}
   .hero-ff-top .header-logo img{height:20px;}
-  .hero-ff-menu{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#fff;text-transform:uppercase;cursor:pointer;background:none;border:none;padding:0;justify-self:end;}
+  .hero-ff-top-right{display:flex;align-items:center;gap:18px;justify-self:end;}
+  .hero-ff-lang-toggle{font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#fff;text-transform:uppercase;cursor:pointer;background:none;border:none;padding:0;opacity:.85;transition:opacity .2s;}
+  .hero-ff-lang-toggle:hover{opacity:1;}
+  .hero-ff-menu{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#fff;text-transform:uppercase;cursor:pointer;background:none;border:none;padding:0;}
   .hero-ff-menu svg{width:18px;height:18px;}
   .hero-ff-menu .icon-close,.hero-ff-menu .label-close{display:none;}
   .hero-ff-menu.is-open .icon-open,.hero-ff-menu.is-open .label-open{display:none;}
@@ -342,7 +345,7 @@
     .hero-ff-side{align-items:flex-start;width:100%;}
     .brand-mark{padding:6px 10px;}
     .brand-mark svg{height:11px;}
-    .hero-ff-menu{position:relative;z-index:6;}
+    .hero-ff-top-right{position:relative;z-index:6;}
     .hero-ff-menu-panel{
       position:fixed;inset:0;top:0;right:0;bottom:0;left:0;
       width:100%;height:100%;min-width:0;max-width:none;

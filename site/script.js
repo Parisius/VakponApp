@@ -18,31 +18,45 @@
   revealEls.forEach(el => io.observe(el));
 
   // Scroll-reveal word-by-word text animation (Notre Vision)
+  // Word-by-word scroll reveal (Notre Vision). Elements reveal in DOM order
+  // as ONE shared sequence — the heading finishes fully before the paragraph
+  // below it starts — rather than each element tracking its own position
+  // independently. refreshScrollRevealText() re-wraps words after a language
+  // switch replaces an element's text (data-i18n overwrites .sr-word spans
+  // via textContent, so they'd otherwise never re-run their reveal).
+  let updateScrollRevealText = () => {};
+  function refreshScrollRevealText() {
+    const els = document.querySelectorAll('.scroll-reveal-text');
+    if (!els.length) return;
+    els.forEach((el) => {
+      const words = el.textContent.trim().split(/\s+/).filter(Boolean);
+      el.innerHTML = words.map(w => `<span class="sr-word">${w}</span>`).join(' ');
+    });
+    updateScrollRevealText();
+  }
   (function initScrollRevealText(){
     const els = document.querySelectorAll('.scroll-reveal-text');
     if (!els.length) return;
-    els.forEach(el => {
-      const words = el.textContent.trim().split(/\s+/);
-      el.innerHTML = words.map(w => `<span class="sr-word">${w}</span>`).join(' ');
-    });
-    function update(){
+    refreshScrollRevealText();
+    updateScrollRevealText = function update(){
       const vh = window.innerHeight;
       const start = vh * 0.85;
       const end = vh * 0.4;
-      els.forEach(el => {
-        const words = el.querySelectorAll('.sr-word');
-        const rect = el.getBoundingClientRect();
-        const total = rect.height + (start - end);
-        const scrolled = start - rect.top;
-        let progress = total > 0 ? scrolled / total : 0;
-        progress = Math.max(0, Math.min(1, progress));
-        const activeCount = Math.round(progress * words.length);
-        words.forEach((w, i) => w.classList.toggle('active', i < activeCount));
-      });
-    }
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
+      const first = els[0].getBoundingClientRect();
+      const last = els[els.length - 1].getBoundingClientRect();
+      const total = (last.bottom - first.top) + (start - end);
+      const scrolled = start - first.top;
+      let progress = total > 0 ? scrolled / total : 0;
+      progress = Math.max(0, Math.min(1, progress));
+
+      const allWords = [];
+      els.forEach((el) => allWords.push(...el.querySelectorAll('.sr-word')));
+      const activeCount = Math.round(progress * allWords.length);
+      allWords.forEach((w, i) => w.classList.toggle('active', i < activeCount));
+    };
+    window.addEventListener('scroll', updateScrollRevealText, { passive: true });
+    window.addEventListener('resize', updateScrollRevealText);
+    updateScrollRevealText();
   })();
 
   // Local dev keeps working from localhost; everywhere else hits the deployed API.
@@ -152,6 +166,7 @@
     if (allOffers.length) renderOffers(allOffers);
     if (currentModalOffer) populateOfferModal(currentModalOffer);
     setFfSlide(ffIndex);
+    refreshScrollRevealText(); // data-i18n above just overwrote .sr-word spans with plain text
   }
 
   function setLanguage(lang) {
