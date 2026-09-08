@@ -47,27 +47,51 @@
   const ESPACE_CLIENT_URL = IS_LOCAL ? 'http://localhost:5502/index.html' : 'https://vakpon-tours.com/espace-client/index.html';
   document.querySelectorAll('.espace-client-link').forEach((el) => { el.href = ESPACE_CLIENT_URL; });
 
-  // Visitor tracking — fires once per pageview, read from the admin's new
-  // Analytics page. Same backend a future site can reuse via /api/analytics.js.
-  (function trackPageview() {
+  // Visitor tracking — read from the admin's Analytics page. Same backend a
+  // future site can reuse via /api/analytics.js (see analytics-snippet.ts).
+  // sessionId lives in sessionStorage (cleared when the tab closes, unlike a
+  // cookie) so the log/funnel can group events into one visit.
+  let analyticsSessionId;
+  try {
+    analyticsSessionId = sessionStorage.getItem('__vza_sid');
+    if (!analyticsSessionId) {
+      analyticsSessionId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      sessionStorage.setItem('__vza_sid', analyticsSessionId);
+    }
+  } catch (e) { /* private browsing etc. — tracking just skips session grouping */ }
+
+  function trackEvent(eventType) {
     try {
       const params = new URLSearchParams(location.search);
       const payload = JSON.stringify({
         site: 'vakpon-tours',
         path: location.pathname,
+        eventType,
         referrer: document.referrer || '',
+        sessionId: analyticsSessionId,
         utmSource: params.get('utm_source') || undefined,
         utmMedium: params.get('utm_medium') || undefined,
         utmCampaign: params.get('utm_campaign') || undefined,
       });
-      const endpoint = `${API_BASE}/analytics/collect`;
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(endpoint, new Blob([payload], { type: 'application/json' }));
-      } else {
-        fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
-      }
-    } catch (e) { /* never block the page for analytics */ }
-  })();
+      return fetch(`${API_BASE}/analytics/collect`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true,
+      }).then((r) => r.json()).catch(() => null);
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  const pageviewStartedAt = Date.now();
+  trackEvent('pageview').then((result) => {
+    if (!result || !result.id) return;
+    let sent = false;
+    const sendDuration = () => {
+      if (sent) return;
+      sent = true;
+      const payload = JSON.stringify({ id: result.id, durationMs: Date.now() - pageviewStartedAt });
+      if (navigator.sendBeacon) navigator.sendBeacon(`${API_BASE}/analytics/duration`, new Blob([payload], { type: 'application/json' }));
+    };
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendDuration(); });
+    addEventListener('pagehide', sendDuration);
+  });
 
   function escapeHtml(str) {
     return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -110,6 +134,7 @@
       }
       formNote.textContent = "Merci ! Votre demande de réservation a bien été enregistrée. Nous vous répondrons sous 24 heures.";
       contactForm.reset();
+      trackEvent('conversion');
     } catch (err) {
       formNote.textContent = `Erreur : ${err.message} Merci de réessayer ou de nous contacter directement.`;
     } finally {

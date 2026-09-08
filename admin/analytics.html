@@ -55,10 +55,26 @@
     <main class="main">
       <div class="view-head">
         <h1>Analytics</h1>
+        <div class="view-head-actions">
+          <button class="btn-outline" id="exportCsv">Exporter CSV</button>
+          <button class="btn-outline" id="exportExcel">Exporter Excel</button>
+        </div>
+      </div>
+
+      <div class="view-head">
         <div class="period-filter" id="periodFilter">
           <button data-range="7d" class="active">7 jours</button>
           <button data-range="30d">30 jours</button>
           <button data-range="all">Tout</button>
+        </div>
+        <div class="view-head-actions">
+          <select id="pathFilter"><option value="">Toutes les pages</option></select>
+          <select id="deviceFilter">
+            <option value="">Tous les appareils</option>
+            <option value="desktop">Ordinateur</option>
+            <option value="mobile">Mobile</option>
+            <option value="tablet">Tablette</option>
+          </select>
         </div>
       </div>
 
@@ -67,7 +83,11 @@
       <div class="analytics-grid">
         <div class="table-wrap dash-card analytics-chart-card">
           <div class="dash-card-head">Visites par jour</div>
-          <div id="viewsChart" class="chart-area"></div>
+          <div id="viewsChart"></div>
+        </div>
+        <div class="table-wrap dash-card">
+          <div class="dash-card-head">Tunnel de conversion</div>
+          <div id="funnel" class="funnel"></div>
         </div>
         <div class="table-wrap dash-card">
           <div class="dash-card-head">Sources de trafic</div>
@@ -78,13 +98,33 @@
           <div id="topPages" class="status-breakdown"></div>
         </div>
         <div class="table-wrap dash-card">
+          <div class="dash-card-head">Appareils</div>
+          <div id="deviceBreakdown" class="status-breakdown"></div>
+        </div>
+        <div class="table-wrap dash-card">
           <div class="dash-card-head">Pays</div>
           <div id="topCountries" class="status-breakdown"></div>
         </div>
         <div class="table-wrap dash-card">
-          <div class="dash-card-head">Appareils</div>
-          <div id="deviceBreakdown" class="status-breakdown"></div>
+          <div class="dash-card-head">Villes</div>
+          <div id="topCities" class="status-breakdown"></div>
         </div>
+      </div>
+
+      <div class="view-head" style="margin-top:8px;">
+        <h1 style="font-size:20px;">Journal des visites</h1>
+      </div>
+      <div class="table-wrap">
+        <table id="logTable">
+          <thead>
+            <tr>
+              <th>Date</th><th>Page</th><th>Visiteur</th><th>Session</th><th>Référent</th>
+              <th>Source UTM</th><th>Pays</th><th>Ville</th><th>Appareil</th><th>Navigateur</th><th>OS</th><th>Durée</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="pagination" id="logPagination"></div>
       </div>
     </main>
   </div>
