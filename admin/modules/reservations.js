@@ -39,8 +39,8 @@ function render() {
   const pageItems = paginate(list, page, PAGE_SIZE);
   tbody.innerHTML = pageItems.map((r) => `
     <tr data-id="${r._id}">
-      <td>${r.customer?.fullName || '—'}</td>
-      <td>${r.offerNameSnapshot || r.offer?.title || '—'}</td>
+      <td>${escapeHtml(r.customer?.fullName) || '—'}</td>
+      <td>${escapeHtml(r.offerNameSnapshot || r.offer?.title) || '—'}</td>
       <td>${r.travelers}</td>
       <td>${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}</td>
       <td><span class="badge badge-${r.status}">${STATUS_LABELS[r.status]}</span></td>
@@ -57,22 +57,22 @@ function openReservation(id) {
   if (!r) return;
   const body = document.getElementById('reservationModalBody');
   body.innerHTML = `
-    <h2 style="margin-bottom:16px;">${r.offerNameSnapshot || 'Réservation'}</h2>
-    <div class="detail-row"><span>Client</span><b>${r.customer?.fullName || ''} (${r.customer?.email || ''})</b></div>
-    <div class="detail-row"><span>Téléphone</span><b>${r.customer?.phone || '—'}</b></div>
+    <h2 style="margin-bottom:16px;">${escapeHtml(r.offerNameSnapshot) || 'Réservation'}</h2>
+    <div class="detail-row"><span>Client</span><b>${escapeHtml(r.customer?.fullName) || ''} (${escapeHtml(r.customer?.email) || ''})</b></div>
+    <div class="detail-row"><span>Téléphone</span><b>${escapeHtml(r.customer?.phone) || '—'}</b></div>
     <div class="detail-row"><span>Voyageurs</span><b>${r.travelers}</b></div>
     <div class="detail-row"><span>Dates</span><b>${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}</b></div>
-    <div class="detail-row"><span>Message initial</span><b>${r.message || '—'}</b></div>
+    <div class="detail-row"><span>Message initial</span><b>${escapeHtml(r.message) || '—'}</b></div>
     <div class="status-row">
       ${Object.keys(STATUS_LABELS).map((s) => `<button ${canManage ? '' : 'disabled'} class="btn-outline small-btn" data-status="${s}" style="${s === r.status ? 'border-color:var(--accent);color:var(--accent);' : ''}">${STATUS_LABELS[s]}</button>`).join('')}
     </div>
     ${canManage ? `
-      <div class="field"><label>Notes internes (non visibles par le client)</label><textarea id="adminNotesInput">${r.adminNotes || ''}</textarea></div>
+      <div class="field"><label>Notes internes (non visibles par le client)</label><textarea id="adminNotesInput">${escapeHtml(r.adminNotes)}</textarea></div>
       <button class="btn-outline" id="saveNotesBtn">Enregistrer les notes</button>
       <hr style="border-color:var(--line);margin:18px 0;">
     ` : '<hr style="border-color:var(--line);margin:18px 0;">'}
     <div class="thread" id="reservationThread">
-      ${r.messages.map((m) => `<div class="thread-msg ${m.from}">${m.text}<div class="meta">${new Date(m.date).toLocaleString('fr-FR')}</div></div>`).join('') || '<div style="color:var(--muted);font-size:13px;">Aucun message.</div>'}
+      ${r.messages.map((m) => `<div class="thread-msg ${m.from}">${escapeHtml(m.text)}<div class="meta">${new Date(m.date).toLocaleString('fr-FR')}</div></div>`).join('') || '<div style="color:var(--muted);font-size:13px;">Aucun message.</div>'}
     </div>
     ${canManage ? `
       <div class="field" style="margin-top:14px;"><textarea id="newMessageInput" placeholder="Répondre au client..."></textarea></div>

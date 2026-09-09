@@ -36,9 +36,9 @@ function render() {
   const pageItems = paginate(list, page, PAGE_SIZE);
   tbody.innerHTML = pageItems.map((m) => `
     <tr data-id="${m._id}">
-      <td>${m.fullName}</td>
-      <td>${m.email}</td>
-      <td>${ROLE_LABELS[m.role] || m.role}</td>
+      <td>${escapeHtml(m.fullName)}</td>
+      <td>${escapeHtml(m.email)}</td>
+      <td>${escapeHtml(ROLE_LABELS[m.role] || m.role)}</td>
       <td>${fmtDateTime(m.createdAt)}</td>
       <td>
         <div class="row-actions">
@@ -84,8 +84,8 @@ function openTeamMemberForm(member) {
     .join('');
   body.innerHTML = `
     <h2 style="margin-bottom:16px;">${isEdit ? 'Modifier le membre' : 'Ajouter un membre'}</h2>
-    <div class="field"><label>Nom complet</label><input id="tm-name" value="${member?.fullName || ''}"></div>
-    <div class="field"><label>Email</label><input id="tm-email" type="email" value="${member?.email || ''}"></div>
+    <div class="field"><label>Nom complet</label><input id="tm-name" value="${escapeHtml(member?.fullName)}"></div>
+    <div class="field"><label>Email</label><input id="tm-email" type="email" value="${escapeHtml(member?.email)}"></div>
     <div class="field"><label>Rôle</label><select id="tm-role">${roleOptions}</select></div>
     <button class="btn-pill full" id="saveTeamMemberBtn">${isEdit ? 'Enregistrer' : 'Créer le compte'}</button>
     <div class="auth-error" id="teamError"></div>

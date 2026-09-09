@@ -10,21 +10,18 @@ const NAV_ITEMS = [
 ];
 
 // ====== AUTH / IDENTITY ======
-function getToken() { return localStorage.getItem('vakpon_client_token'); }
-function setToken(t) { localStorage.setItem('vakpon_client_token', t); }
-function clearToken() { localStorage.removeItem('vakpon_client_token'); }
-
+// The JWT lives only in an httpOnly cookie set by the API — never readable
+// from JS, so an XSS bug has nothing to steal.
 async function api(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
       ...(options.headers || {}),
     },
   });
   if (res.status === 401) {
-    clearToken();
     window.location.href = 'login.html';
     throw new Error('Session expirée, merci de vous reconnecter.');
   }
@@ -33,8 +30,8 @@ async function api(path, options = {}) {
   return data;
 }
 
-function logout() {
-  clearToken();
+async function logout() {
+  try { await api('/auth/logout', { method: 'POST' }); } catch { /* cookie may already be gone */ }
   window.location.href = 'login.html';
 }
 
@@ -86,7 +83,6 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 // ====== SHELL (topbar + nav) ======
 // Call once per authenticated page: initShell({ view: 'reservations' })
 async function initShell({ view } = {}) {
-  if (!getToken()) { window.location.href = 'login.html'; return null; }
   initTheme();
 
   let me;

@@ -54,7 +54,11 @@
 <script src="modules/shared.js"></script>
 <script>
   initTheme();
-  if (getToken()) window.location.href = 'index.html';
+  // No client-readable token anymore (httpOnly cookie) — ask the API whether
+  // a valid session cookie is already present.
+  fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then((res) => {
+    if (res.ok) window.location.href = 'index.html';
+  }).catch(() => {});
 
   const loginForm = document.getElementById('loginForm');
   const otpForm = document.getElementById('otpForm');
@@ -80,7 +84,6 @@
         errorEl.textContent = "Ce compte n'a pas les droits pour accéder au back-office.";
         return;
       }
-      setToken(data.accessToken);
       setIdentity(data.user);
       window.location.href = 'index.html';
     } catch (err) {
@@ -108,7 +111,6 @@
         errorEl.textContent = "Ce compte n'a pas les droits pour accéder au back-office.";
         return;
       }
-      setToken(data.accessToken);
       setIdentity(data.user);
       window.location.href = 'index.html';
     } catch (err) {

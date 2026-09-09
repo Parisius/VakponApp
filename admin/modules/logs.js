@@ -30,10 +30,10 @@ function render() {
   tbody.innerHTML = pageItems.map((l) => `
     <tr>
       <td>${fmtDateTime(l.createdAt)}</td>
-      <td>${l.actorEmail}</td>
-      <td>${ROLE_LABELS[l.actorRole] || l.actorRole}</td>
-      <td>${ACTION_LABELS[l.action] || l.action}</td>
-      <td>${l.details}</td>
+      <td>${escapeHtml(l.actorEmail)}</td>
+      <td>${escapeHtml(ROLE_LABELS[l.actorRole] || l.actorRole)}</td>
+      <td>${escapeHtml(ACTION_LABELS[l.action] || l.action)}</td>
+      <td>${escapeHtml(l.details)}</td>
     </tr>
   `).join('') || `<tr><td colspan="5" style="color:var(--muted);">Aucune entrée.</td></tr>`;
   renderPagination('pagination', list.length, page, PAGE_SIZE, (p) => { page = p; render(); });

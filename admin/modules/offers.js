@@ -34,8 +34,8 @@ function render() {
   const pageItems = paginate(list, page, PAGE_SIZE);
   tbody.innerHTML = pageItems.map((o) => `
     <tr data-id="${o._id}">
-      <td>${o.title}</td>
-      <td>${o.priceTiers?.[0]?.amount || '—'}</td>
+      <td>${escapeHtml(o.title)}</td>
+      <td>${escapeHtml(o.priceTiers?.[0]?.amount) || '—'}</td>
       <td>${o.featured ? '✅' : '—'}</td>
       <td>${o.active ? '✅' : '<span style="color:var(--muted);">Expirée</span>'}</td>
       <td>
@@ -88,25 +88,25 @@ function openOfferForm(id) {
   body.innerHTML = `
     <h2 style="margin-bottom:16px;">${id ? "Modifier l'offre" : 'Nouvelle offre'}</h2>
     <div class="form-grid">
-      <div class="field"><label>Titre (FR)</label><input id="f-title" value="${o.title || ''}"></div>
-      <div class="field"><label>Titre (EN)</label><input id="f-titleEn" value="${o.titleEn || ''}"></div>
+      <div class="field"><label>Titre (FR)</label><input id="f-title" value="${escapeHtml(o.title)}"></div>
+      <div class="field"><label>Titre (EN)</label><input id="f-titleEn" value="${escapeHtml(o.titleEn)}"></div>
     </div>
-    <div class="field"><label>Slug (URL)</label><input id="f-slug" value="${o.slug || ''}"></div>
+    <div class="field"><label>Slug (URL)</label><input id="f-slug" value="${escapeHtml(o.slug)}"></div>
     <div class="form-grid">
-      <div class="field"><label>Citation (FR)</label><input id="f-quote" value="${o.quote || ''}"></div>
-      <div class="field"><label>Citation (EN)</label><input id="f-quoteEn" value="${o.quoteEn || ''}"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>Description (FR)</label><textarea id="f-desc">${o.description || ''}</textarea></div>
-      <div class="field"><label>Description (EN)</label><textarea id="f-descEn">${o.descriptionEn || ''}</textarea></div>
+      <div class="field"><label>Citation (FR)</label><input id="f-quote" value="${escapeHtml(o.quote)}"></div>
+      <div class="field"><label>Citation (EN)</label><input id="f-quoteEn" value="${escapeHtml(o.quoteEn)}"></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Durée FR (ex: 7 jours · 6 nuits)</label><input id="f-duration" value="${o.durationLabel || ''}"></div>
-      <div class="field"><label>Durée EN (ex: 7 days · 6 nights)</label><input id="f-durationEn" value="${o.durationLabelEn || ''}"></div>
+      <div class="field"><label>Description (FR)</label><textarea id="f-desc">${escapeHtml(o.description)}</textarea></div>
+      <div class="field"><label>Description (EN)</label><textarea id="f-descEn">${escapeHtml(o.descriptionEn)}</textarea></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Itinéraire FR (ex: Cotonou · Ouidah)</label><input id="f-route" value="${o.routeLabel || ''}"></div>
-      <div class="field"><label>Itinéraire EN</label><input id="f-routeEn" value="${o.routeLabelEn || ''}"></div>
+      <div class="field"><label>Durée FR (ex: 7 jours · 6 nuits)</label><input id="f-duration" value="${escapeHtml(o.durationLabel)}"></div>
+      <div class="field"><label>Durée EN (ex: 7 days · 6 nights)</label><input id="f-durationEn" value="${escapeHtml(o.durationLabelEn)}"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Itinéraire FR (ex: Cotonou · Ouidah)</label><input id="f-route" value="${escapeHtml(o.routeLabel)}"></div>
+      <div class="field"><label>Itinéraire EN</label><input id="f-routeEn" value="${escapeHtml(o.routeLabelEn)}"></div>
     </div>
     <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Ce qui est inclus (FR / EN)</label>
     <div id="includedList"></div>
@@ -125,28 +125,28 @@ function openOfferForm(id) {
     </label>
     <div id="heroFields" style="${o.isHero ? '' : 'display:none;'}">
       <div class="form-grid">
-        <div class="field"><label>Texte au-dessus du titre FR</label><input id="f-heroWelcome" value="${o.heroWelcomeText || ''}"></div>
-        <div class="field"><label>Texte au-dessus du titre EN</label><input id="f-heroWelcomeEn" value="${o.heroWelcomeTextEn || ''}"></div>
+        <div class="field"><label>Texte au-dessus du titre FR</label><input id="f-heroWelcome" value="${escapeHtml(o.heroWelcomeText)}"></div>
+        <div class="field"><label>Texte au-dessus du titre EN</label><input id="f-heroWelcomeEn" value="${escapeHtml(o.heroWelcomeTextEn)}"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Titre du héros FR (une ligne = un retour à la ligne)</label><textarea id="f-heroHeadline">${o.heroHeadline || ''}</textarea></div>
-        <div class="field"><label>Titre du héros EN</label><textarea id="f-heroHeadlineEn">${o.heroHeadlineEn || ''}</textarea></div>
+        <div class="field"><label>Titre du héros FR (une ligne = un retour à la ligne)</label><textarea id="f-heroHeadline">${escapeHtml(o.heroHeadline)}</textarea></div>
+        <div class="field"><label>Titre du héros EN</label><textarea id="f-heroHeadlineEn">${escapeHtml(o.heroHeadlineEn)}</textarea></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Lieu affiché FR (titre)</label><input id="f-heroPinTitle" value="${o.heroPinTitle || ''}"></div>
-        <div class="field"><label>Lieu affiché EN (titre)</label><input id="f-heroPinTitleEn" value="${o.heroPinTitleEn || ''}"></div>
+        <div class="field"><label>Lieu affiché FR (titre)</label><input id="f-heroPinTitle" value="${escapeHtml(o.heroPinTitle)}"></div>
+        <div class="field"><label>Lieu affiché EN (titre)</label><input id="f-heroPinTitleEn" value="${escapeHtml(o.heroPinTitleEn)}"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Lieu affiché FR (sous-titre)</label><input id="f-heroPinSub" value="${o.heroPinSub || ''}"></div>
-        <div class="field"><label>Lieu affiché EN (sous-titre)</label><input id="f-heroPinSubEn" value="${o.heroPinSubEn || ''}"></div>
+        <div class="field"><label>Lieu affiché FR (sous-titre)</label><input id="f-heroPinSub" value="${escapeHtml(o.heroPinSub)}"></div>
+        <div class="field"><label>Lieu affiché EN (sous-titre)</label><input id="f-heroPinSubEn" value="${escapeHtml(o.heroPinSubEn)}"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Titre de la fenêtre FR</label><input id="f-modalHeading" value="${o.modalHeading || ''}"></div>
-        <div class="field"><label>Titre de la fenêtre EN</label><input id="f-modalHeadingEn" value="${o.modalHeadingEn || ''}"></div>
+        <div class="field"><label>Titre de la fenêtre FR</label><input id="f-modalHeading" value="${escapeHtml(o.modalHeading)}"></div>
+        <div class="field"><label>Titre de la fenêtre EN</label><input id="f-modalHeadingEn" value="${escapeHtml(o.modalHeadingEn)}"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Dates affichées FR (texte libre)</label><input id="f-modalDates" value="${o.modalDatesLabel || ''}"></div>
-        <div class="field"><label>Dates affichées EN</label><input id="f-modalDatesEn" value="${o.modalDatesLabelEn || ''}"></div>
+        <div class="field"><label>Dates affichées FR (texte libre)</label><input id="f-modalDates" value="${escapeHtml(o.modalDatesLabel)}"></div>
+        <div class="field"><label>Dates affichées EN</label><input id="f-modalDatesEn" value="${escapeHtml(o.modalDatesLabelEn)}"></div>
       </div>
 
       <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Détail des prix — label FR / EN + montant</label>
@@ -158,8 +158,8 @@ function openOfferForm(id) {
       <button type="button" class="small-btn" id="addItineraryDay">+ Ajouter un jour</button>
 
       <div class="form-grid" style="margin-top:16px;">
-        <div class="field"><label>Note de bas de page FR</label><textarea id="f-modalNote">${o.modalNote || ''}</textarea></div>
-        <div class="field"><label>Note de bas de page EN</label><textarea id="f-modalNoteEn">${o.modalNoteEn || ''}</textarea></div>
+        <div class="field"><label>Note de bas de page FR</label><textarea id="f-modalNote">${escapeHtml(o.modalNote)}</textarea></div>
+        <div class="field"><label>Note de bas de page EN</label><textarea id="f-modalNoteEn">${escapeHtml(o.modalNoteEn)}</textarea></div>
       </div>
     </div>
 
@@ -174,14 +174,14 @@ function openOfferForm(id) {
   function addIncludedRow(value = '', valueEn = '') {
     const row = document.createElement('div');
     row.className = 'included-row';
-    row.innerHTML = `<input data-field="fr" placeholder="FR" value="${value}"><input data-field="en" placeholder="EN" value="${valueEn}"><button type="button" class="small-btn">✕</button>`;
+    row.innerHTML = `<input data-field="fr" placeholder="FR" value="${escapeHtml(value)}"><input data-field="en" placeholder="EN" value="${escapeHtml(valueEn)}"><button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     includedList.appendChild(row);
   }
   function addPriceRow(label = '', labelEn = '', amount = '') {
     const row = document.createElement('div');
     row.className = 'price-row';
-    row.innerHTML = `<input data-field="label" placeholder="Label FR" value="${label}"><input data-field="labelEn" placeholder="Label EN" value="${labelEn}"><input data-field="amount" placeholder="Montant" value="${amount}"><button type="button" class="small-btn">✕</button>`;
+    row.innerHTML = `<input data-field="label" placeholder="Label FR" value="${escapeHtml(label)}"><input data-field="labelEn" placeholder="Label EN" value="${escapeHtml(labelEn)}"><input data-field="amount" placeholder="Montant" value="${escapeHtml(amount)}"><button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     priceList.appendChild(row);
   }
@@ -189,9 +189,9 @@ function openOfferForm(id) {
     const row = document.createElement('div');
     row.className = 'price-row';
     row.innerHTML = `
-      <input data-field="label" placeholder="Label FR (ex: Prix normal)" value="${label}">
-      <input data-field="labelEn" placeholder="Label EN" value="${labelEn}">
-      <input data-field="amount" placeholder="Montant" value="${amount}">
+      <input data-field="label" placeholder="Label FR (ex: Prix normal)" value="${escapeHtml(label)}">
+      <input data-field="labelEn" placeholder="Label EN" value="${escapeHtml(labelEn)}">
+      <input data-field="amount" placeholder="Montant" value="${escapeHtml(amount)}">
       <label style="display:flex;align-items:center;gap:4px;font-size:11.5px;white-space:nowrap;"><input type="checkbox" class="pb-highlight" ${highlight ? 'checked' : ''}> Mise en avant</label>
       <button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
@@ -202,12 +202,12 @@ function openOfferForm(id) {
     row.className = 'included-row';
     row.style.flexWrap = 'wrap';
     row.innerHTML = `
-      <input data-field="dateLabel" placeholder="Date FR (ex: 1er oct. - Arrivée)" value="${dateLabel}" style="flex:1 1 45%;margin-bottom:6px;">
-      <input data-field="dateLabelEn" placeholder="Date EN (ex: Oct 1 - Arrival)" value="${dateLabelEn}" style="flex:1 1 45%;margin-bottom:6px;">
-      <input data-field="title" placeholder="Titre du jour FR" value="${title}" style="flex:1;">
-      <input data-field="titleEn" placeholder="Titre du jour EN" value="${titleEn}" style="flex:1;">
-      <input data-field="description" placeholder="Description FR" value="${description}" style="flex:2;">
-      <input data-field="descriptionEn" placeholder="Description EN" value="${descriptionEn}" style="flex:2;">
+      <input data-field="dateLabel" placeholder="Date FR (ex: 1er oct. - Arrivée)" value="${escapeHtml(dateLabel)}" style="flex:1 1 45%;margin-bottom:6px;">
+      <input data-field="dateLabelEn" placeholder="Date EN (ex: Oct 1 - Arrival)" value="${escapeHtml(dateLabelEn)}" style="flex:1 1 45%;margin-bottom:6px;">
+      <input data-field="title" placeholder="Titre du jour FR" value="${escapeHtml(title)}" style="flex:1;">
+      <input data-field="titleEn" placeholder="Titre du jour EN" value="${escapeHtml(titleEn)}" style="flex:1;">
+      <input data-field="description" placeholder="Description FR" value="${escapeHtml(description)}" style="flex:2;">
+      <input data-field="descriptionEn" placeholder="Description EN" value="${escapeHtml(descriptionEn)}" style="flex:2;">
       <button type="button" class="small-btn">✕</button>`;
     row.querySelector('button').addEventListener('click', () => row.remove());
     itineraryList.appendChild(row);

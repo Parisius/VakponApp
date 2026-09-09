@@ -33,10 +33,10 @@ function render() {
   const pageItems = paginate(list, page, PAGE_SIZE);
   tbody.innerHTML = pageItems.map((c) => `
     <tr data-id="${c._id}">
-      <td>${c.fullName}</td>
-      <td>${c.email}</td>
-      <td>${c.phone || '—'}</td>
-      <td>${(c.tags || []).map((t) => `<span class="tag-chip">${t}</span>`).join('')}</td>
+      <td>${escapeHtml(c.fullName)}</td>
+      <td>${escapeHtml(c.email)}</td>
+      <td>${escapeHtml(c.phone) || '—'}</td>
+      <td>${(c.tags || []).map((t) => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}</td>
       <td>${fmtDateTime(c.createdAt)}</td>
     </tr>
   `).join('') || `<tr><td colspan="5" style="color:var(--muted);">Aucun client.</td></tr>`;
@@ -50,12 +50,12 @@ function openCustomer(id) {
   if (!c) return;
   const body = document.getElementById('customerModalBody');
   body.innerHTML = `
-    <h2 style="margin-bottom:16px;">${c.fullName}</h2>
-    <div class="detail-row"><span>Email</span><b>${c.email}</b></div>
-    <div class="detail-row"><span>Téléphone</span><b>${c.phone || '—'}</b></div>
+    <h2 style="margin-bottom:16px;">${escapeHtml(c.fullName)}</h2>
+    <div class="detail-row"><span>Email</span><b>${escapeHtml(c.email)}</b></div>
+    <div class="detail-row"><span>Téléphone</span><b>${escapeHtml(c.phone) || '—'}</b></div>
     <div class="detail-row"><span>Client depuis</span><b>${fmtDateTime(c.createdAt)}</b></div>
-    <div class="field" style="margin-top:16px;"><label>Tags (séparés par virgule)</label><input id="c-tags" value="${(c.tags || []).join(', ')}"></div>
-    <div class="field"><label>Notes internes</label><textarea id="c-notes">${c.adminNotes || ''}</textarea></div>
+    <div class="field" style="margin-top:16px;"><label>Tags (séparés par virgule)</label><input id="c-tags" value="${escapeHtml((c.tags || []).join(', '))}"></div>
+    <div class="field"><label>Notes internes</label><textarea id="c-notes">${escapeHtml(c.adminNotes)}</textarea></div>
     <button class="btn-pill" id="saveCustomerBtn">Enregistrer</button>
   `;
   body.querySelector('#saveCustomerBtn').addEventListener('click', async () => {

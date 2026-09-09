@@ -36,7 +36,7 @@ function statusRows(containerId, rows, labelKey, emptyMessage) {
   const max = Math.max(1, ...rows.map((r) => r.views));
   el.innerHTML = rows.map((r) => `
     <div class="status-row-item">
-      <span class="label" title="${r[labelKey]}">${r[labelKey] || '—'}</span>
+      <span class="label" title="${escapeHtml(r[labelKey])}">${escapeHtml(r[labelKey]) || '—'}</span>
       <span class="bar-bg"><span class="bar-fill" style="width:${(r.views / max) * 100}%;"></span></span>
       <span class="count">${r.views}</span>
     </div>
@@ -141,7 +141,7 @@ async function render() {
   const knownPaths = new Set(Array.from(pathFilter.options).map((o) => o.value));
   data.topPages.forEach((p) => {
     if (!knownPaths.has(p.path)) {
-      pathFilter.insertAdjacentHTML('beforeend', `<option value="${p.path}">${p.path}</option>`);
+      pathFilter.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(p.path)}">${escapeHtml(p.path)}</option>`);
       knownPaths.add(p.path);
     }
   });
@@ -163,16 +163,16 @@ async function renderLog() {
   tbody.innerHTML = data.rows.map((r) => `
     <tr>
       <td>${new Date(r.date).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-      <td>${r.page}</td>
-      <td>${r.visitor}</td>
-      <td>${r.session}</td>
-      <td>${r.referrer}</td>
-      <td>${r.utmSource}</td>
-      <td>${r.country}</td>
-      <td>${r.city || '—'}</td>
-      <td>${DEVICE_LABELS[r.device] || r.device}</td>
-      <td>${r.browser}</td>
-      <td>${r.os}</td>
+      <td>${escapeHtml(r.page)}</td>
+      <td>${escapeHtml(r.visitor)}</td>
+      <td>${escapeHtml(r.session)}</td>
+      <td>${escapeHtml(r.referrer)}</td>
+      <td>${escapeHtml(r.utmSource)}</td>
+      <td>${escapeHtml(r.country)}</td>
+      <td>${escapeHtml(r.city) || '—'}</td>
+      <td>${escapeHtml(DEVICE_LABELS[r.device] || r.device)}</td>
+      <td>${escapeHtml(r.browser)}</td>
+      <td>${escapeHtml(r.os)}</td>
       <td>${formatDuration(r.durationMs)}</td>
     </tr>
   `).join('') || `<tr><td colspan="12" style="color:var(--muted);text-align:center;">Aucune visite sur cette période.</td></tr>`;

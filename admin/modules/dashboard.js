@@ -202,7 +202,7 @@ function render() {
     const max = Math.max(1, ...top.map(([, c]) => c));
     topOffersEl.innerHTML = top.map(([title, count]) => `
       <div class="status-row-item">
-        <span class="label" title="${title}">${title}</span>
+        <span class="label" title="${escapeHtml(title)}">${escapeHtml(title)}</span>
         <span class="bar-bg"><span class="bar-fill" style="width:${(count / max) * 100}%;"></span></span>
         <span class="count">${count}</span>
       </div>

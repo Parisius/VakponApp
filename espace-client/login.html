@@ -87,7 +87,11 @@
 <script src="modules/shared.js"></script>
 <script>
   initTheme();
-  if (getToken()) window.location.href = 'index.html';
+  // No client-readable token anymore (httpOnly cookie) — ask the API whether
+  // a valid session cookie is already present.
+  fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then((res) => {
+    if (res.ok) window.location.href = 'index.html';
+  }).catch(() => {});
   populateCountrySelect(document.getElementById('regCountry'), 'BJ');
 
   document.querySelectorAll('[data-close-modal]').forEach((el) => {
@@ -122,11 +126,10 @@
     const errorEl = document.getElementById('loginError');
     errorEl.textContent = '';
     try {
-      const data = await api('/auth/login', {
+      await api('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }),
       });
-      setToken(data.accessToken);
       window.location.href = 'index.html';
     } catch (err) {
       errorEl.textContent = err.message;
@@ -144,8 +147,7 @@
       password: document.getElementById('regPassword').value,
     };
     try {
-      const data = await api('/auth/register', { method: 'POST', body: JSON.stringify(payload) });
-      setToken(data.accessToken);
+      await api('/auth/register', { method: 'POST', body: JSON.stringify(payload) });
       window.location.href = 'index.html';
     } catch (err) {
       errorEl.textContent = err.message;

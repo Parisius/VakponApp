@@ -36,9 +36,9 @@ const NAV_ICONS = {
 };
 
 // ====== AUTH / IDENTITY ======
-function getToken() { return localStorage.getItem('vakpon_admin_token'); }
-function setToken(t) { localStorage.setItem('vakpon_admin_token', t); }
-function clearToken() { localStorage.removeItem('vakpon_admin_token'); }
+// The JWT itself lives only in an httpOnly cookie set by the API (never
+// readable from JS, so an XSS bug has nothing to steal) — only the
+// non-sensitive display identity is cached here for fast UI paint.
 function getIdentity() { try { return JSON.parse(localStorage.getItem('vakpon_admin_identity') || 'null'); } catch { return null; } }
 function setIdentity(u) {
   localStorage.setItem('vakpon_admin_identity', JSON.stringify({
@@ -51,14 +51,13 @@ function clearIdentity() { localStorage.removeItem('vakpon_admin_identity'); }
 async function api(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
       ...(options.headers || {}),
     },
   });
   if (res.status === 401) {
-    clearToken();
     clearIdentity();
     window.location.href = 'login.html';
     throw new Error('Session expirée');
@@ -68,8 +67,8 @@ async function api(path, options = {}) {
   return data;
 }
 
-function logout() {
-  clearToken();
+async function logout() {
+  try { await api('/auth/logout', { method: 'POST' }); } catch { /* cookie may already be gone */ }
   clearIdentity();
   window.location.href = 'login.html';
 }
@@ -113,6 +112,14 @@ function showToast(message, { type = 'success', persistent = false, copyValue = 
 }
 
 // ====== DATE FORMAT ======
+// ====== XSS ESCAPING ======
+// Every table/list that interpolates admin- or visitor-supplied text into
+// innerHTML must run it through this first — offer titles, customer names,
+// analytics referrer/UTM values (public, unauthenticated input), etc.
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function fmtDate(d) { return d ? new Date(d).toLocaleDateString('fr-FR') : '—'; }
 function fmtDateTime(d) {
   if (!d) return '—';
@@ -176,14 +183,12 @@ function exportExcel(filename, headers, rows) {
 // Redirects to login.html if unauthenticated, renders nav filtered by role,
 // and shows an access-denied panel (instead of the page content) if the role can't see this page.
 async function initShell({ view, requiredRoles = null, onSearch = null } = {}) {
-  if (!getToken()) { window.location.href = 'login.html'; return null; }
-
   initTheme();
 
-  if (!getIdentity()) {
-    try { setIdentity(await api('/users/me')); }
-    catch { window.location.href = 'login.html'; return null; }
-  }
+  // No client-readable token to check anymore (httpOnly cookie) — the
+  // session cookie, if any, is validated by asking the API directly.
+  try { setIdentity(await api('/users/me')); }
+  catch { window.location.href = 'login.html'; return null; }
   const identity = getIdentity();
 
   if (requiredRoles && !requiredRoles.includes(identity.role)) {
