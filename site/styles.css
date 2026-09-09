@@ -64,7 +64,23 @@
 
   /* NAV */
   header{position:fixed;top:0;left:0;right:0;z-index:200;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;padding:18px 40px;transition:background .3s,border-color .3s,color .3s,opacity .3s,transform .3s;color:#fff;opacity:0;pointer-events:none;transform:translateY(-8px);}
-  header.scrolled{background:var(--header-scrolled-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);color:var(--text);opacity:1;pointer-events:auto;transform:translateY(0);}
+  /* Once scrolled, switch from the hero's centered-logo grid to the same
+     left-logo / inline-nav / right-actions flex layout used on the
+     standalone pages (.page-header-inner), not just matching nav's own
+     pill-vs-flat styling but the whole header arrangement. */
+  header.scrolled{
+    display:flex;align-items:center;gap:28px;
+    background:var(--header-scrolled-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+    color:var(--text);opacity:1;pointer-events:auto;transform:translateY(0);
+  }
+  header.scrolled .header-logo{order:1;justify-self:auto;}
+  header.scrolled nav{order:2;flex:1;justify-self:auto;}
+  header.scrolled .nav-right{order:3;}
+  /* The social icons only ever showed once scrolled anyway (the header is
+     fully transparent before that) — dropped here so the scrolled bar reads
+     as the same clean actions cluster as the standalone pages. Still shown
+     in the mobile menu panel and the footer. */
+  header.scrolled .nav-right .ff-menu-social{display:none;}
   .header-logo{justify-self:center;display:flex;align-items:center;}
   .header-logo img{height:22px;width:auto;display:block;}
   .header-logo .logo-white{display:none;}
@@ -369,6 +385,12 @@
     .site-header-menu-toggle{display:flex;}
     .btn-pill{padding:11px 16px;font-size:13px;}
     .theme-toggle{width:34px;height:34px;}
+    /* On the standalone content pages (guide/about/contact) the sticky
+       .page-header logo stays visible above the full-screen mobile menu
+       panel, so the panel's own brand-row logo is redundant — showing both
+       reads as the logo repeating twice. The homepage's own menu panel uses
+       .brand-mark-flat instead of .header-logo, so it's unaffected. */
+    .hero-ff-menu-panel .ff-menu-brand .header-logo{display:none;}
   }
 
   /* CONTENT PAGES (Guide du voyageur, À propos) — a plain page hero plus a
