@@ -189,8 +189,10 @@
     return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
 
+  // Only present on the homepage — Guide du voyageur / À propos reuse this
+  // same script.js for header/theme/lang behavior but have no contact form.
   const contactForm = document.getElementById('contactForm');
-  contactForm.addEventListener('submit', async function(e){
+  if (contactForm) contactForm.addEventListener('submit', async function(e){
     e.preventDefault();
     const formNote = document.getElementById('formNote');
     const submitBtn = contactForm.querySelector('.form-submit');

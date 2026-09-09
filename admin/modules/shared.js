@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { view: 'customers', href: 'customers.html', label: 'Clients (CRM)', group: 'Gestion', roles: ['admin', 'operations', 'service_client', 'support'] },
   { view: 'analytics', href: 'analytics.html', label: 'Analytics', group: 'Gestion', roles: ['admin', 'operations', 'marketing'] },
   { view: 'translations', href: 'translations.html', label: 'Traductions', group: 'Gestion', roles: ['admin', 'operations', 'marketing'] },
+  { view: 'pages', href: 'pages.html', label: 'Pages', group: 'Gestion', roles: ['admin', 'operations', 'marketing'] },
   { view: 'team', href: 'team.html', label: 'Équipe', group: 'Administration', roles: ['admin', 'operations'] },
   { view: 'logs', href: 'logs.html', label: 'Journal', group: 'Administration', roles: ['admin', 'operations'] },
 ];
@@ -33,6 +34,7 @@ const NAV_ICONS = {
   logs: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   analytics: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   translations: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 5h10M9 3v2M9 5c0 4-2.5 7-6 8.5M6 9.5c1.5 2 4 3.5 6.5 4M14 21l4-9 4 9M15.3 18h5.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  pages: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5h9l3 3V20a1 1 0 01-1 1H6a1 1 0 01-1-1V4.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
 };
 
 // ====== AUTH / IDENTITY ======
@@ -356,4 +358,5 @@ const ACTION_LABELS = {
   'reservation.status': 'Statut réservation', 'reservation.notes': 'Notes réservation',
   'customer.update': 'Fiche client', 'offer.create': 'Création offre',
   'offer.update': 'Modification offre', 'offer.delete': 'Suppression offre',
+  'page.update': 'Modification page',
 };
