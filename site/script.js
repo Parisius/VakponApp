@@ -264,7 +264,12 @@
   // Every offer the admin flags isHero gets its own slide, added after any existing
   // ones (see applyHeroOffers below) — the static markup below is just slide 0's
   // fallback content until the API responds.
+  // Everything from here to the end of the file is homepage-only (hero
+  // slider + offer cards/modal) — guarded as a whole since it's one
+  // interconnected block, rather than null-checking dozens of individual
+  // hero/offer element lookups. Guide du voyageur / À propos have neither.
   const ffPaginationEl = document.getElementById('ffPagination');
+  if (ffPaginationEl) {
   const ffBgEl = document.getElementById('ffBg');
   const ffWelcome = document.getElementById('ffWelcome');
   const ffHeadline = document.getElementById('ffHeadline');
@@ -602,3 +607,4 @@
     }
   }
   loadOffers();
+  }
