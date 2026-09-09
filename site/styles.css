@@ -379,6 +379,8 @@
   .content-card h3{font-size:20px;margin-bottom:12px;}
   .content-card p{color:var(--muted);font-size:15px;line-height:1.7;}
   .content-loading{color:var(--muted);font-size:14.5px;}
+  .contact-guide-link{display:inline-block;font-size:14.5px;font-weight:600;color:var(--accent-2);border-bottom:1px solid transparent;transition:border-color .2s;}
+  .contact-guide-link:hover{border-color:var(--accent-2);}
 
   /* Simple, always-visible header for interior pages (Guide du voyageur,
      À propos) — the homepage's own <header> starts transparent/invisible
