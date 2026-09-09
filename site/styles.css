@@ -64,23 +64,37 @@
 
   /* NAV */
   header{position:fixed;top:0;left:0;right:0;z-index:200;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;padding:18px 40px;transition:background .3s,border-color .3s,color .3s,opacity .3s,transform .3s;color:#fff;opacity:0;pointer-events:none;transform:translateY(-8px);}
-  /* Once scrolled, switch from the hero's centered-logo grid to the same
-     left-logo / inline-nav / right-actions flex layout used on the
-     standalone pages (.page-header-inner), not just matching nav's own
-     pill-vs-flat styling but the whole header arrangement. */
   header.scrolled{
-    display:flex;align-items:center;gap:28px;
     background:var(--header-scrolled-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
     color:var(--text);opacity:1;pointer-events:auto;transform:translateY(0);
   }
-  header.scrolled .header-logo{order:1;justify-self:auto;}
-  header.scrolled nav{order:2;flex:1;justify-self:auto;}
-  header.scrolled .nav-right{order:3;}
-  /* The social icons only ever showed once scrolled anyway (the header is
-     fully transparent before that) — dropped here so the scrolled bar reads
-     as the same clean actions cluster as the standalone pages. Still shown
-     in the mobile menu panel and the footer. */
-  header.scrolled .nav-right .ff-menu-social{display:none;}
+  /* Once scrolled, switch the HOMEPAGE header from the hero's centered-logo
+     grid to the same left-logo / inline-nav / right-actions flex layout
+     used on the standalone pages (.page-header-inner) — not just nav's own
+     pill-vs-flat styling but the whole arrangement. Scoped to
+     :not(.page-header): script.js toggles the same "scrolled" class on
+     every page's #siteHeader, and .header-logo/nav are bare selectors that
+     also match the standalone pages' own header — without this guard the
+     unscoped `order` values would override their default DOM order (their
+     actions cluster has no explicit order, so it would jump ahead of the
+     logo) each time the visitor scrolls, breaking the "same on scroll or
+     not" header those pages are meant to keep. Desktop only: below 900px
+     the nav links are hidden and the actions cluster (theme toggle,
+     "Nous Contacter" pill, hamburger) is too wide to sit next to the logo
+     in an unwrapped flex row — it was overflowing the header and pushing
+     the hamburger off-screen. Mobile keeps the existing
+     grid-template-columns:auto 1fr auto layout from the 900px query below. */
+  @media (min-width:901px){
+    header.scrolled:not(.page-header){display:flex;align-items:center;gap:28px;}
+    header.scrolled:not(.page-header) .header-logo{order:1;justify-self:auto;}
+    header.scrolled:not(.page-header) nav{order:2;flex:1;justify-self:auto;}
+    header.scrolled:not(.page-header) .nav-right{order:3;}
+    /* The social icons only ever showed once scrolled anyway (the header is
+       fully transparent before that) — dropped here so the scrolled bar reads
+       as the same clean actions cluster as the standalone pages. Still shown
+       in the mobile menu panel and the footer. */
+    header.scrolled:not(.page-header) .nav-right .ff-menu-social{display:none;}
+  }
   .header-logo{justify-self:center;display:flex;align-items:center;}
   .header-logo img{height:22px;width:auto;display:block;}
   .header-logo .logo-white{display:none;}
@@ -379,6 +393,11 @@
     .offer-modal-close{top:12px;right:12px;}
     .itinerary-day{grid-template-columns:1fr;gap:6px;}
     header{grid-template-columns:auto 1fr auto;gap:10px;}
+    /* nav is display:none at this width, which removes it from the grid's
+       auto-placement entirely — without pinning these explicitly, .nav-right
+       slides into the (too-narrow) middle track instead of the last one. */
+    header .header-logo{grid-column:1;}
+    header .nav-right{grid-column:3;}
     header .header-logo img{height:15px;}
     .nav-right{gap:8px;}
     .nav-right .ff-menu-social{display:none;}
@@ -453,6 +472,13 @@
      here rather than risking horizontal overflow. */
   @media (max-width:430px){
     .page-header-actions .btn-pill{display:none;}
+  }
+  /* Same idea for the homepage's own sticky header: the "Nous Contacter"
+     pill plus lang/theme toggles and the hamburger run wider than the
+     wordmark logo leaves room for on narrow phones. "Contact" is already
+     reachable from the hamburger panel, so drop the pill here too. */
+  @media (max-width:480px){
+    header .nav-right .btn-pill{display:none;}
   }
 
   @media (max-width:700px){
