@@ -167,6 +167,7 @@
     if (currentModalOffer) populateOfferModal(currentModalOffer);
     setFfSlide(ffIndex);
     refreshScrollRevealText(); // data-i18n above just overwrote .sr-word spans with plain text
+    if (translations['hero.typewriter']) startTypewriter(t('hero.typewriter'));
   }
 
   function setLanguage(lang) {
@@ -358,26 +359,32 @@
 
   setFfSlide(0);
 
-  // Typewriter effect for the hero tag (inspired by reactbits TextType)
+  // Typewriter effect for the hero tag (inspired by reactbits TextType).
+  // startTypewriter() is re-callable so a language switch can restart the
+  // cycle with the translated string instead of leaving the French one
+  // stuck mid-animation (see applyTranslations()).
   const typeTarget = document.getElementById('typeText');
-  const typeStr = "Un monde de splendeurs vous attend";
-  if (typeTarget) {
+  let typewriterTimer = null;
+  function startTypewriter(str) {
+    if (!typeTarget || !str) return;
+    clearTimeout(typewriterTimer);
     let ci = 0, deleting = false;
     function typeLoop() {
       if (!deleting) {
         ci++;
-        typeTarget.textContent = typeStr.slice(0, ci);
-        if (ci === typeStr.length) { setTimeout(() => { deleting = true; typeLoop(); }, 2400); return; }
-        setTimeout(typeLoop, 55);
+        typeTarget.textContent = str.slice(0, ci);
+        if (ci === str.length) { typewriterTimer = setTimeout(() => { deleting = true; typeLoop(); }, 2400); return; }
+        typewriterTimer = setTimeout(typeLoop, 55);
       } else {
         ci--;
-        typeTarget.textContent = typeStr.slice(0, ci);
-        if (ci === 0) { setTimeout(() => { deleting = false; typeLoop(); }, 700); return; }
-        setTimeout(typeLoop, 28);
+        typeTarget.textContent = str.slice(0, ci);
+        if (ci === 0) { typewriterTimer = setTimeout(() => { deleting = false; typeLoop(); }, 700); return; }
+        typewriterTimer = setTimeout(typeLoop, 28);
       }
     }
     typeLoop();
   }
+  startTypewriter("Un monde de splendeurs vous attend");
 
   const ffMenuPanel = document.getElementById('ffMenuPanel');
   // Two triggers share one panel: the hero's own button (visible at the top
