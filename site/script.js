@@ -118,6 +118,12 @@
   let translations = {};
   let allOffers = [];
   let currentModalOffer = null;
+  // Declared here (rather than inside the homepage-only hero block below)
+  // because applyTranslations() reads it unconditionally on every page —
+  // a `let` inside that block is invisible outside it, which used to throw
+  // "ffIndex is not defined" and abort applyTranslations() before it could
+  // reach refreshScrollRevealText()/startTypewriter().
+  let ffIndex = 0;
 
   function t(key) {
     const entry = translations[key];
@@ -165,9 +171,13 @@
     // Re-render everything driven by offer data in the new language.
     if (allOffers.length) renderOffers(allOffers);
     if (currentModalOffer) populateOfferModal(currentModalOffer);
-    setFfSlide(ffIndex);
+    // setFfSlide only exists on the homepage (declared inside the
+    // if (ffPaginationEl) hero block below) — guard it here since this
+    // function also runs on the standalone pages.
+    if (typeof setFfSlide === 'function') setFfSlide(ffIndex);
     refreshScrollRevealText(); // data-i18n above just overwrote .sr-word spans with plain text
-    if (translations['hero.typewriter']) startTypewriter(t('hero.typewriter'));
+    // startTypewriter, like setFfSlide above, only exists on the homepage.
+    if (typeof startTypewriter === 'function' && translations['hero.typewriter']) startTypewriter(t('hero.typewriter'));
   }
 
   function setLanguage(lang) {
@@ -358,7 +368,6 @@
     }
   }
 
-  let ffIndex = 0;
   if (ffSegCount()) {
     let ffTimer = setInterval(() => {
       ffIndex = (ffIndex + 1) % ffSegCount();
