@@ -260,6 +260,29 @@
       });
     });
   });
+  // Mobile full-screen menu — shared by every page (the hero's own toggle
+  // button only exists on the homepage; #siteMenuToggle in the sticky header
+  // exists on all of them), so this runs unconditionally rather than inside
+  // the homepage-only hero/offers guard below.
+  const ffMenuPanel = document.getElementById('ffMenuPanel');
+  const ffMenuToggles = [document.getElementById('ffMenuToggle'), document.getElementById('siteMenuToggle')].filter(Boolean);
+  if (ffMenuPanel && ffMenuToggles.length) {
+    const setOpen = (opening) => {
+      ffMenuPanel.classList.toggle('open', opening);
+      ffMenuToggles.forEach((btn) => btn.classList.toggle('is-open', opening));
+      document.body.style.overflow = opening ? 'hidden' : '';
+    };
+    const closeFfMenu = () => setOpen(false);
+    ffMenuToggles.forEach((btn) => {
+      btn.addEventListener('click', () => setOpen(!ffMenuPanel.classList.contains('open')));
+    });
+    document.addEventListener('click', (e) => {
+      if (ffMenuToggles.some((btn) => btn.contains(e.target)) || ffMenuPanel.contains(e.target)) return;
+      closeFfMenu();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFfMenu(); });
+  }
+
   // FarmForm-style hero: pagination sync + text swap for special-offer slides + menu toggle.
   // Every offer the admin flags isHero gets its own slide, added after any existing
   // ones (see applyHeroOffers below) — the static markup below is just slide 0's
@@ -392,28 +415,6 @@
     typeLoop();
   }
   startTypewriter("Un monde de splendeurs vous attend");
-
-  const ffMenuPanel = document.getElementById('ffMenuPanel');
-  // Two triggers share one panel: the hero's own button (visible at the top
-  // of the page) and the sticky header's (reachable once the hero has
-  // scrolled out of view — #siteHeader stays position:fixed above it).
-  const ffMenuToggles = [document.getElementById('ffMenuToggle'), document.getElementById('siteMenuToggle')].filter(Boolean);
-  if (ffMenuPanel && ffMenuToggles.length) {
-    const setOpen = (opening) => {
-      ffMenuPanel.classList.toggle('open', opening);
-      ffMenuToggles.forEach((btn) => btn.classList.toggle('is-open', opening));
-      document.body.style.overflow = opening ? 'hidden' : '';
-    };
-    const closeFfMenu = () => setOpen(false);
-    ffMenuToggles.forEach((btn) => {
-      btn.addEventListener('click', () => setOpen(!ffMenuPanel.classList.contains('open')));
-    });
-    document.addEventListener('click', (e) => {
-      if (ffMenuToggles.some((btn) => btn.contains(e.target)) || ffMenuPanel.contains(e.target)) return;
-      closeFfMenu();
-    });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFfMenu(); });
-  }
 
   // Special offer modal — delegated so it also works on offer cards
   // rendered dynamically after the page has already loaded (see loadOffers below).

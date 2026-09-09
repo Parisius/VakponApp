@@ -1,4 +1,19 @@
 const SLUG_LABELS = { 'guide-du-voyageur': 'Guide du voyageur', 'a-propos': 'À propos' };
+// Kept in sync with the ICON_SVGS map in site/pages-content.js — sections
+// only ever store one of these keys, never raw HTML, so the site can render
+// a fixed, code-owned SVG for each rather than trusting DB content as markup.
+const ICON_OPTIONS = {
+  passport: 'Passeport (visa)',
+  plane: 'Avion (transport)',
+  shield: 'Bouclier (sécurité/santé)',
+  wallet: 'Portefeuille (monnaie)',
+  sun: 'Soleil (météo)',
+  'message-circle': 'Bulle (langue)',
+  'map-pin': 'Épingle (lieu)',
+  target: 'Cible (mission)',
+  globe: 'Globe (authenticité)',
+  users: 'Personnes (équipe)',
+};
 let currentSlug = 'guide-du-voyageur';
 let pageCache = {};
 
@@ -72,7 +87,11 @@ function render() {
           <button type="button" class="mini-card-remove" aria-label="Supprimer cette section">✕</button>
         </div>
       </div>
-      <div class="field field-sm"><label>Icône (emoji)</label><input data-field="icon" value="${escapeHtml(section.icon)}" style="max-width:100px;"></div>
+      <div class="field field-sm"><label>Icône</label>
+        <select data-field="icon" style="max-width:240px;">
+          ${Object.entries(ICON_OPTIONS).map(([key, label]) => `<option value="${key}" ${section.icon === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
+        </select>
+      </div>
       <div class="form-grid">
         <div class="field field-sm"><label>Titre FR</label><input data-field="titleFr" value="${escapeHtml(section.titleFr)}"></div>
         <div class="field field-sm"><label>Titre EN</label><input data-field="titleEn" value="${escapeHtml(section.titleEn)}"></div>
