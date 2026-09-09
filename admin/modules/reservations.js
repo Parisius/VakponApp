@@ -56,29 +56,59 @@ function openReservation(id) {
   const r = reservationsCache.find((x) => x._id === id);
   if (!r) return;
   const body = document.getElementById('reservationModalBody');
+  const initial = (r.customer?.fullName || '?').trim().charAt(0).toUpperCase();
   body.innerHTML = `
-    <h2 style="margin-bottom:16px;">${escapeHtml(r.offerNameSnapshot) || 'Réservation'}</h2>
-    <div class="detail-row"><span>Client</span><b>${escapeHtml(r.customer?.fullName) || ''} (${escapeHtml(r.customer?.email) || ''})</b></div>
-    <div class="detail-row"><span>Téléphone</span><b>${escapeHtml(r.customer?.phone) || '—'}</b></div>
-    <div class="detail-row"><span>Voyageurs</span><b>${r.travelers}</b></div>
-    <div class="detail-row"><span>Dates</span><b>${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}</b></div>
-    <div class="detail-row"><span>Message initial</span><b>${escapeHtml(r.message) || '—'}</b></div>
-    <div class="status-row">
-      ${Object.keys(STATUS_LABELS).map((s) => `<button ${canManage ? '' : 'disabled'} class="btn-outline small-btn" data-status="${s}" style="${s === r.status ? 'border-color:var(--accent);color:var(--accent);' : ''}">${STATUS_LABELS[s]}</button>`).join('')}
+    <div class="modal-split">
+      <div class="modal-side">
+        <div class="modal-side-icon">${initial}</div>
+        <div class="modal-side-title">${escapeHtml(r.customer?.fullName) || 'Client'}</div>
+        <div class="modal-side-sub">${escapeHtml(r.offerNameSnapshot) || 'Réservation'}</div>
+        <div class="modal-side-stats">
+          <div class="modal-side-stat"><span>Email</span><span>${escapeHtml(r.customer?.email) || '—'}</span></div>
+          <div class="modal-side-stat"><span>Téléphone</span><span>${escapeHtml(r.customer?.phone) || '—'}</span></div>
+          <div class="modal-side-stat"><span>Voyageurs</span><span>${r.travelers}</span></div>
+          <div class="modal-side-stat"><span>Dates</span><span>${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}</span></div>
+          <div class="modal-side-stat"><span>Statut</span><span><span class="badge badge-${r.status}">${STATUS_LABELS[r.status]}</span></span></div>
+        </div>
+        <label style="font-size:11.5px;color:var(--muted);font-weight:600;display:block;margin:18px 0 8px;">Changer le statut</label>
+        <div class="status-row" style="margin:0;">
+          ${Object.keys(STATUS_LABELS).map((s) => `<button ${canManage ? '' : 'disabled'} class="btn-outline small-btn" data-status="${s}" style="${s === r.status ? 'border-color:var(--accent);color:var(--accent);' : ''}">${STATUS_LABELS[s]}</button>`).join('')}
+        </div>
+      </div>
+      <div class="modal-main">
+        <h2 style="margin-bottom:4px;">${escapeHtml(r.offerNameSnapshot) || 'Réservation'}</h2>
+        <div class="modal-tabs">
+          <button type="button" class="modal-tab active" data-tab="messages">Messages</button>
+          ${canManage ? '<button type="button" class="modal-tab" data-tab="notes">Notes internes</button>' : ''}
+        </div>
+
+        <div class="tab-panel active" data-panel="messages">
+          <div class="detail-row"><span>Message initial</span><b>${escapeHtml(r.message) || '—'}</b></div>
+          <div class="thread" id="reservationThread">
+            ${r.messages.map((m) => `<div class="thread-msg ${m.from}">${escapeHtml(m.text)}<div class="meta">${new Date(m.date).toLocaleString('fr-FR')}</div></div>`).join('') || '<div style="color:var(--muted);font-size:13px;">Aucun message.</div>'}
+          </div>
+          ${canManage ? `
+            <div class="field" style="margin-top:14px;"><textarea id="newMessageInput" placeholder="Répondre au client..."></textarea></div>
+            <button class="btn-pill" id="sendMessageBtn">Envoyer</button>
+          ` : ''}
+        </div>
+
+        ${canManage ? `
+          <div class="tab-panel" data-panel="notes">
+            <div class="field"><label>Notes internes (non visibles par le client)</label><textarea id="adminNotesInput" rows="8">${escapeHtml(r.adminNotes)}</textarea></div>
+            <button class="btn-outline" id="saveNotesBtn">Enregistrer les notes</button>
+          </div>
+        ` : ''}
+      </div>
     </div>
-    ${canManage ? `
-      <div class="field"><label>Notes internes (non visibles par le client)</label><textarea id="adminNotesInput">${escapeHtml(r.adminNotes)}</textarea></div>
-      <button class="btn-outline" id="saveNotesBtn">Enregistrer les notes</button>
-      <hr style="border-color:var(--line);margin:18px 0;">
-    ` : '<hr style="border-color:var(--line);margin:18px 0;">'}
-    <div class="thread" id="reservationThread">
-      ${r.messages.map((m) => `<div class="thread-msg ${m.from}">${escapeHtml(m.text)}<div class="meta">${new Date(m.date).toLocaleString('fr-FR')}</div></div>`).join('') || '<div style="color:var(--muted);font-size:13px;">Aucun message.</div>'}
-    </div>
-    ${canManage ? `
-      <div class="field" style="margin-top:14px;"><textarea id="newMessageInput" placeholder="Répondre au client..."></textarea></div>
-      <button class="btn-pill" id="sendMessageBtn">Envoyer</button>
-    ` : ''}
   `;
+
+  body.querySelectorAll('.modal-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      body.querySelectorAll('.modal-tab').forEach((t) => t.classList.toggle('active', t === tab));
+      body.querySelectorAll('.tab-panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === tab.dataset.tab));
+    });
+  });
 
   if (canManage) {
     body.querySelectorAll('[data-status]').forEach((btn) => {

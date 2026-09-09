@@ -85,86 +85,124 @@ function openOfferForm(id) {
     modalPricingBreakdown: [], itinerary: [], modalNote: '', modalNoteEn: '',
   };
   const body = document.getElementById('offerModalBody');
+  const initial = (o.title || 'N').trim().charAt(0).toUpperCase();
   body.innerHTML = `
-    <h2 style="margin-bottom:16px;">${id ? "Modifier l'offre" : 'Nouvelle offre'}</h2>
-    <div class="form-grid">
-      <div class="field"><label>Titre (FR)</label><input id="f-title" value="${escapeHtml(o.title)}"></div>
-      <div class="field"><label>Titre (EN)</label><input id="f-titleEn" value="${escapeHtml(o.titleEn)}"></div>
-    </div>
-    <div class="field"><label>Slug (URL)</label><input id="f-slug" value="${escapeHtml(o.slug)}"></div>
-    <div class="form-grid">
-      <div class="field"><label>Citation (FR)</label><input id="f-quote" value="${escapeHtml(o.quote)}"></div>
-      <div class="field"><label>Citation (EN)</label><input id="f-quoteEn" value="${escapeHtml(o.quoteEn)}"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>Description (FR)</label><textarea id="f-desc">${escapeHtml(o.description)}</textarea></div>
-      <div class="field"><label>Description (EN)</label><textarea id="f-descEn">${escapeHtml(o.descriptionEn)}</textarea></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>Durée FR (ex: 7 jours · 6 nuits)</label><input id="f-duration" value="${escapeHtml(o.durationLabel)}"></div>
-      <div class="field"><label>Durée EN (ex: 7 days · 6 nights)</label><input id="f-durationEn" value="${escapeHtml(o.durationLabelEn)}"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>Itinéraire FR (ex: Cotonou · Ouidah)</label><input id="f-route" value="${escapeHtml(o.routeLabel)}"></div>
-      <div class="field"><label>Itinéraire EN</label><input id="f-routeEn" value="${escapeHtml(o.routeLabelEn)}"></div>
-    </div>
-    <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Ce qui est inclus (FR / EN)</label>
-    <div id="includedList"></div>
-    <button type="button" class="small-btn" id="addIncluded">+ Ajouter</button>
-    <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Tarifs (label FR / EN + montant)</label>
-    <div id="priceList"></div>
-    <button type="button" class="small-btn" id="addPrice">+ Ajouter</button>
-    <div class="form-grid" style="margin-top:16px;">
-      <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="f-featured" ${o.featured ? 'checked' : ''}> Mise en avant (carte spéciale)</label>
-      <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="f-active" ${o.active !== false ? 'checked' : ''}> Active sur le site</label>
-    </div>
+    <div class="modal-split">
+      <div class="modal-side">
+        <div class="modal-side-icon">${initial}</div>
+        <div class="modal-side-title">${escapeHtml(o.title) || 'Nouvelle offre'}</div>
+        <div class="modal-side-sub">${escapeHtml(o.durationLabel) || 'Durée non définie'}</div>
+        <div class="modal-side-stats">
+          <div class="modal-side-stat"><span>Prix (individuel)</span><span>${escapeHtml(o.priceTiers?.[0]?.amount) || '—'}</span></div>
+          <div class="modal-side-stat"><span>Itinéraire</span><span>${escapeHtml(o.routeLabel) || '—'}</span></div>
+          <div class="modal-side-stat"><span>Jours programmés</span><span>${(o.itinerary || []).length}</span></div>
+        </div>
+        <div class="modal-side-toggles">
+          <label><input type="checkbox" id="f-featured" ${o.featured ? 'checked' : ''}> Mise en avant (carte spéciale)</label>
+          <label><input type="checkbox" id="f-active" ${o.active !== false ? 'checked' : ''}> Active sur le site</label>
+          <label><input type="checkbox" id="f-hero" ${o.isHero ? 'checked' : ''}> Afficher en une</label>
+        </div>
+        <div class="modal-side-actions">
+          <button class="btn-pill full" id="saveOfferBtn">Enregistrer</button>
+          <button class="btn-outline full" type="button" data-close-modal>Annuler</button>
+        </div>
+      </div>
+      <div class="modal-main">
+        <h2 style="margin-bottom:4px;">${id ? "Modifier l'offre" : 'Nouvelle offre'}</h2>
+        <div class="modal-tabs">
+          <button type="button" class="modal-tab active" data-tab="general">Général</button>
+          <button type="button" class="modal-tab" data-tab="pricing">Tarifs &amp; inclus</button>
+          <button type="button" class="modal-tab" data-tab="itinerary">Itinéraire</button>
+          <button type="button" class="modal-tab" data-tab="hero">Page héros</button>
+        </div>
 
-    <hr style="border-color:var(--line);margin:22px 0;">
-    <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-      <input type="checkbox" id="f-hero" ${o.isHero ? 'checked' : ''}> Afficher en une (section héros de la page d'accueil)
-    </label>
-    <div id="heroFields" style="${o.isHero ? '' : 'display:none;'}">
-      <div class="form-grid">
-        <div class="field"><label>Texte au-dessus du titre FR</label><input id="f-heroWelcome" value="${escapeHtml(o.heroWelcomeText)}"></div>
-        <div class="field"><label>Texte au-dessus du titre EN</label><input id="f-heroWelcomeEn" value="${escapeHtml(o.heroWelcomeTextEn)}"></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Titre du héros FR (une ligne = un retour à la ligne)</label><textarea id="f-heroHeadline">${escapeHtml(o.heroHeadline)}</textarea></div>
-        <div class="field"><label>Titre du héros EN</label><textarea id="f-heroHeadlineEn">${escapeHtml(o.heroHeadlineEn)}</textarea></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Lieu affiché FR (titre)</label><input id="f-heroPinTitle" value="${escapeHtml(o.heroPinTitle)}"></div>
-        <div class="field"><label>Lieu affiché EN (titre)</label><input id="f-heroPinTitleEn" value="${escapeHtml(o.heroPinTitleEn)}"></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Lieu affiché FR (sous-titre)</label><input id="f-heroPinSub" value="${escapeHtml(o.heroPinSub)}"></div>
-        <div class="field"><label>Lieu affiché EN (sous-titre)</label><input id="f-heroPinSubEn" value="${escapeHtml(o.heroPinSubEn)}"></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Titre de la fenêtre FR</label><input id="f-modalHeading" value="${escapeHtml(o.modalHeading)}"></div>
-        <div class="field"><label>Titre de la fenêtre EN</label><input id="f-modalHeadingEn" value="${escapeHtml(o.modalHeadingEn)}"></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Dates affichées FR (texte libre)</label><input id="f-modalDates" value="${escapeHtml(o.modalDatesLabel)}"></div>
-        <div class="field"><label>Dates affichées EN</label><input id="f-modalDatesEn" value="${escapeHtml(o.modalDatesLabelEn)}"></div>
-      </div>
+        <div class="tab-panel active" data-panel="general">
+          <div class="form-grid">
+            <div class="field"><label>Titre (FR)</label><input id="f-title" value="${escapeHtml(o.title)}"></div>
+            <div class="field"><label>Titre (EN)</label><input id="f-titleEn" value="${escapeHtml(o.titleEn)}"></div>
+          </div>
+          <div class="field"><label>Slug (URL)</label><input id="f-slug" value="${escapeHtml(o.slug)}"></div>
+          <div class="form-grid">
+            <div class="field"><label>Citation (FR)</label><input id="f-quote" value="${escapeHtml(o.quote)}"></div>
+            <div class="field"><label>Citation (EN)</label><input id="f-quoteEn" value="${escapeHtml(o.quoteEn)}"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Description (FR)</label><textarea id="f-desc">${escapeHtml(o.description)}</textarea></div>
+            <div class="field"><label>Description (EN)</label><textarea id="f-descEn">${escapeHtml(o.descriptionEn)}</textarea></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Durée FR (ex: 7 jours · 6 nuits)</label><input id="f-duration" value="${escapeHtml(o.durationLabel)}"></div>
+            <div class="field"><label>Durée EN (ex: 7 days · 6 nights)</label><input id="f-durationEn" value="${escapeHtml(o.durationLabelEn)}"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Itinéraire FR (ex: Cotonou · Ouidah)</label><input id="f-route" value="${escapeHtml(o.routeLabel)}"></div>
+            <div class="field"><label>Itinéraire EN</label><input id="f-routeEn" value="${escapeHtml(o.routeLabelEn)}"></div>
+          </div>
+        </div>
 
-      <label style="font-size:12.5px;color:var(--muted);font-weight:600;">Détail des prix — label FR / EN + montant</label>
-      <div id="pricingBreakdownList"></div>
-      <button type="button" class="small-btn" id="addPricingRow">+ Ajouter une ligne</button>
+        <div class="tab-panel" data-panel="pricing">
+          <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-bottom:10px;">Tarifs (label FR / EN + montant)</label>
+          <div id="priceList"></div>
+          <button type="button" class="small-btn" id="addPrice">+ Ajouter un tarif</button>
 
-      <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Programme jour par jour (FR / EN)</label>
-      <div id="itineraryList"></div>
-      <button type="button" class="small-btn" id="addItineraryDay">+ Ajouter un jour</button>
+          <hr style="border-color:var(--line);margin:22px 0;">
 
-      <div class="form-grid" style="margin-top:16px;">
-        <div class="field"><label>Note de bas de page FR</label><textarea id="f-modalNote">${escapeHtml(o.modalNote)}</textarea></div>
-        <div class="field"><label>Note de bas de page EN</label><textarea id="f-modalNoteEn">${escapeHtml(o.modalNoteEn)}</textarea></div>
+          <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-bottom:10px;">Ce qui est inclus (FR / EN)</label>
+          <div id="includedList"></div>
+          <button type="button" class="small-btn" id="addIncluded">+ Ajouter</button>
+        </div>
+
+        <div class="tab-panel" data-panel="itinerary">
+          <div id="itineraryList"></div>
+          <button type="button" class="small-btn" id="addItineraryDay">+ Ajouter un jour</button>
+        </div>
+
+        <div class="tab-panel" data-panel="hero">
+          <div class="form-grid">
+            <div class="field"><label>Texte au-dessus du titre FR</label><input id="f-heroWelcome" value="${escapeHtml(o.heroWelcomeText)}"></div>
+            <div class="field"><label>Texte au-dessus du titre EN</label><input id="f-heroWelcomeEn" value="${escapeHtml(o.heroWelcomeTextEn)}"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Titre du héros FR (une ligne = un retour à la ligne)</label><textarea id="f-heroHeadline">${escapeHtml(o.heroHeadline)}</textarea></div>
+            <div class="field"><label>Titre du héros EN</label><textarea id="f-heroHeadlineEn">${escapeHtml(o.heroHeadlineEn)}</textarea></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Lieu affiché FR (titre)</label><input id="f-heroPinTitle" value="${escapeHtml(o.heroPinTitle)}"></div>
+            <div class="field"><label>Lieu affiché EN (titre)</label><input id="f-heroPinTitleEn" value="${escapeHtml(o.heroPinTitleEn)}"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Lieu affiché FR (sous-titre)</label><input id="f-heroPinSub" value="${escapeHtml(o.heroPinSub)}"></div>
+            <div class="field"><label>Lieu affiché EN (sous-titre)</label><input id="f-heroPinSubEn" value="${escapeHtml(o.heroPinSubEn)}"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Titre de la fenêtre FR</label><input id="f-modalHeading" value="${escapeHtml(o.modalHeading)}"></div>
+            <div class="field"><label>Titre de la fenêtre EN</label><input id="f-modalHeadingEn" value="${escapeHtml(o.modalHeadingEn)}"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Dates affichées FR (texte libre)</label><input id="f-modalDates" value="${escapeHtml(o.modalDatesLabel)}"></div>
+            <div class="field"><label>Dates affichées EN</label><input id="f-modalDatesEn" value="${escapeHtml(o.modalDatesLabelEn)}"></div>
+          </div>
+
+          <label style="font-size:12.5px;color:var(--muted);font-weight:600;display:block;margin-bottom:10px;">Détail des prix — label FR / EN + montant</label>
+          <div id="pricingBreakdownList"></div>
+          <button type="button" class="small-btn" id="addPricingRow">+ Ajouter une ligne</button>
+
+          <div class="form-grid" style="margin-top:20px;">
+            <div class="field"><label>Note de bas de page FR</label><textarea id="f-modalNote">${escapeHtml(o.modalNote)}</textarea></div>
+            <div class="field"><label>Note de bas de page EN</label><textarea id="f-modalNoteEn">${escapeHtml(o.modalNoteEn)}</textarea></div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <button class="btn-pill full" id="saveOfferBtn" style="margin-top:20px;">Enregistrer</button>
   `;
+
+  body.querySelectorAll('.modal-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      body.querySelectorAll('.modal-tab').forEach((t) => t.classList.toggle('active', t === tab));
+      body.querySelectorAll('.tab-panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === tab.dataset.tab));
+    });
+  });
+  body.querySelectorAll('[data-close-modal]').forEach((el) => el.addEventListener('click', () => closeModal('offerModal')));
 
   const includedList = body.querySelector('#includedList');
   const priceList = body.querySelector('#priceList');
@@ -197,19 +235,30 @@ function openOfferForm(id) {
     row.querySelector('button').addEventListener('click', () => row.remove());
     pricingBreakdownList.appendChild(row);
   }
+  function renumberDays() {
+    itineraryList.querySelectorAll('.day-card .day-num').forEach((el, idx) => { el.textContent = `Jour ${idx + 1}`; });
+  }
   function addItineraryRow(dateLabel = '', dateLabelEn = '', title = '', titleEn = '', description = '', descriptionEn = '') {
     const row = document.createElement('div');
-    row.className = 'included-row';
-    row.style.flexWrap = 'wrap';
+    row.className = 'day-card';
     row.innerHTML = `
-      <input data-field="dateLabel" placeholder="Date FR (ex: 1er oct. - Arrivée)" value="${escapeHtml(dateLabel)}" style="flex:1 1 45%;margin-bottom:6px;">
-      <input data-field="dateLabelEn" placeholder="Date EN (ex: Oct 1 - Arrival)" value="${escapeHtml(dateLabelEn)}" style="flex:1 1 45%;margin-bottom:6px;">
-      <input data-field="title" placeholder="Titre du jour FR" value="${escapeHtml(title)}" style="flex:1;">
-      <input data-field="titleEn" placeholder="Titre du jour EN" value="${escapeHtml(titleEn)}" style="flex:1;">
-      <input data-field="description" placeholder="Description FR" value="${escapeHtml(description)}" style="flex:2;">
-      <input data-field="descriptionEn" placeholder="Description EN" value="${escapeHtml(descriptionEn)}" style="flex:2;">
-      <button type="button" class="small-btn">✕</button>`;
-    row.querySelector('button').addEventListener('click', () => row.remove());
+      <div class="day-card-head">
+        <span class="day-num">Jour ${itineraryList.children.length + 1}</span>
+        <button type="button" class="mini-card-remove" aria-label="Supprimer ce jour">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="field field-sm"><label>Date FR</label><input data-field="dateLabel" placeholder="1er oct. - Arrivée" value="${escapeHtml(dateLabel)}"></div>
+        <div class="field field-sm"><label>Date EN</label><input data-field="dateLabelEn" placeholder="Oct 1 - Arrival" value="${escapeHtml(dateLabelEn)}"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field field-sm"><label>Titre du jour FR</label><input data-field="title" value="${escapeHtml(title)}"></div>
+        <div class="field field-sm"><label>Titre du jour EN</label><input data-field="titleEn" value="${escapeHtml(titleEn)}"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field field-sm"><label>Description FR</label><textarea data-field="description" rows="2">${escapeHtml(description)}</textarea></div>
+        <div class="field field-sm"><label>Description EN</label><textarea data-field="descriptionEn" rows="2">${escapeHtml(descriptionEn)}</textarea></div>
+      </div>`;
+    row.querySelector('.mini-card-remove').addEventListener('click', () => { row.remove(); renumberDays(); });
     itineraryList.appendChild(row);
   }
 
@@ -221,9 +270,6 @@ function openOfferForm(id) {
   body.querySelector('#addPrice').addEventListener('click', () => addPriceRow());
   body.querySelector('#addPricingRow').addEventListener('click', () => addPricingBreakdownRow());
   body.querySelector('#addItineraryDay').addEventListener('click', () => addItineraryRow());
-  body.querySelector('#f-hero').addEventListener('change', (e) => {
-    body.querySelector('#heroFields').style.display = e.target.checked ? '' : 'none';
-  });
 
   body.querySelector('#saveOfferBtn').addEventListener('click', async () => {
     const field = (row, name) => row.querySelector(`[data-field="${name}"]`)?.value || '';
@@ -265,7 +311,7 @@ function openOfferForm(id) {
       modalPricingBreakdown: [...pricingBreakdownList.querySelectorAll('.price-row')].map((row) => (
         { label: field(row, 'label'), labelEn: field(row, 'labelEn'), amount: field(row, 'amount'), highlight: row.querySelector('.pb-highlight').checked }
       )).filter((p) => p.label && p.amount),
-      itinerary: [...itineraryList.querySelectorAll('.included-row')].map((row) => ({
+      itinerary: [...itineraryList.querySelectorAll('.day-card')].map((row) => ({
         dateLabel: field(row, 'dateLabel'), dateLabelEn: field(row, 'dateLabelEn'),
         title: field(row, 'title'), titleEn: field(row, 'titleEn'),
         description: field(row, 'description'), descriptionEn: field(row, 'descriptionEn'),
