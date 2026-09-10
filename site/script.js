@@ -17,6 +17,17 @@
   }, { threshold: 0.12 });
   revealEls.forEach(el => io.observe(el));
 
+  // Heritage flip-cards rely on :hover to reveal their back face, which is
+  // both unreliable and undiscoverable on touch devices — make tap toggle
+  // the flip explicitly there (desktop keeps the plain hover interaction).
+  // The CSS-only pulsing badge + one-time wobble that invite the tap live
+  // in styles.css, scoped to the same (hover:none) media feature.
+  if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+    document.querySelectorAll('.heritage-card').forEach((card) => {
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+    });
+  }
+
   // Scroll-reveal word-by-word text animation (Notre Vision)
   // Word-by-word scroll reveal (Notre Vision). Elements reveal in DOM order
   // as ONE shared sequence — the heading finishes fully before the paragraph

@@ -203,7 +203,9 @@
     position:relative;width:100%;height:100%;border-radius:16px;
     transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.1,.2,1);
   }
-  .heritage-card:hover .heritage-flip,.heritage-card:focus-within .heritage-flip{transform:rotateY(180deg);}
+  /* .flipped is toggled by script.js on tap for touch devices, since :hover
+     is unreliable/undiscoverable on mobile — see the tap-hint block below. */
+  .heritage-card:hover .heritage-flip,.heritage-card:focus-within .heritage-flip,.heritage-card.flipped .heritage-flip{transform:rotateY(180deg);}
   .heritage-flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;overflow:hidden;}
   .heritage-flip-front img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
   .heritage-card:hover .heritage-flip-front img{transform:scale(1.05);}
@@ -215,6 +217,30 @@
   .heritage-flip-back p{color:var(--muted);font-size:14px;line-height:1.65;}
   @media (max-width:1000px){.heritage-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:560px){.heritage-grid{grid-template-columns:1fr;}}
+
+  /* Touch-only "tap me" hint: a pulsing badge plus a one-time wobble once
+     the grid scrolls into view (.in is added by script.js's shared reveal
+     observer), so mobile visitors — who never get a hover cue — discover
+     the flip. Desktop keeps the plain hover interaction, untouched. */
+  .heritage-tap-hint{
+    position:absolute;bottom:14px;right:14px;z-index:2;width:34px;height:34px;border-radius:50%;
+    background:rgba(11,11,10,.55);backdrop-filter:blur(4px);color:#fff;
+    display:none;align-items:center;justify-content:center;pointer-events:none;
+  }
+  .heritage-tap-hint svg{width:16px;height:16px;}
+  @media (hover:none) and (pointer:coarse){
+    .heritage-tap-hint{display:flex;animation:heritageTapPulse 2.2s ease-in-out infinite;}
+    .heritage-grid.in .heritage-card:nth-child(1) .heritage-flip{animation:heritagePeek 1.3s ease-in-out .3s 1;}
+    .heritage-grid.in .heritage-card:nth-child(2) .heritage-flip{animation:heritagePeek 1.3s ease-in-out .5s 1;}
+    .heritage-grid.in .heritage-card:nth-child(3) .heritage-flip{animation:heritagePeek 1.3s ease-in-out .7s 1;}
+    .heritage-grid.in .heritage-card:nth-child(4) .heritage-flip{animation:heritagePeek 1.3s ease-in-out .9s 1;}
+  }
+  @keyframes heritageTapPulse{0%,100%{transform:scale(1);opacity:.8;}50%{transform:scale(1.15);opacity:1;}}
+  @keyframes heritagePeek{0%,100%{transform:rotateY(0deg);}30%{transform:rotateY(-16deg);}55%{transform:rotateY(5deg);}}
+  @media (prefers-reduced-motion: reduce){
+    .heritage-tap-hint{animation:none;}
+    .heritage-grid .heritage-card .heritage-flip{animation:none !important;}
+  }
 
   /* OFFRE SPÉCIALE — MODAL (full-screen sheet, slides up like a new page) */
   .offer-modal{position:fixed;inset:0;z-index:500;visibility:hidden;pointer-events:none;}
