@@ -196,7 +196,14 @@
      card 180° to reveal the description. No index number: the photo is the
      identifier now, same way the homepage's other visual sections work. */
   .heritage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;}
-  .heritage-card{perspective:1600px;aspect-ratio:3/4;}
+  /* Without this, tapping the back face's text on iOS Safari is read as a
+     text-selection gesture (word highlight + Copy/Search callout) instead
+     of a tap — which ate the second tap that's supposed to flip the card
+     back to the photo, since the callout swallows the click entirely. */
+  .heritage-card{
+    perspective:1600px;aspect-ratio:3/4;cursor:pointer;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  }
   .heritage-card:focus{outline:none;}
   .heritage-card:focus-visible .heritage-flip{outline:2px solid var(--accent);outline-offset:4px;}
   .heritage-flip{
