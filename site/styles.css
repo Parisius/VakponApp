@@ -192,14 +192,16 @@
 
   /* PATRIMOINE */
   .heritage-head{margin-bottom:80px;max-width:640px;}
-  /* Photo front / text-on-flip back — hover (or keyboard focus) rotates the
-     card 180° to reveal the description. No index number: the photo is the
-     identifier now, same way the homepage's other visual sections work. */
+  /* Text + thumbnail front / full photo on flip back — hover (or keyboard
+     focus, or a tap on touch devices) rotates the card 180° to reveal the
+     photo. Text-first so the description is readable without any
+     interaction; the flip is a "see the photo" reward rather than the only
+     way to read the card. */
   .heritage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;}
-  /* Without this, tapping the back face's text on iOS Safari is read as a
+  /* Without this, tapping the card on iOS Safari can be read as a
      text-selection gesture (word highlight + Copy/Search callout) instead
-     of a tap — which ate the second tap that's supposed to flip the card
-     back to the photo, since the callout swallows the click entirely. */
+     of a tap — which ate the tap that's supposed to flip the card, since
+     the callout swallows the click entirely. */
   .heritage-card{
     perspective:1600px;aspect-ratio:3/4;cursor:pointer;
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
@@ -214,16 +216,33 @@
      is unreliable/undiscoverable on mobile — see the tap-hint block below. */
   .heritage-card:hover .heritage-flip,.heritage-card:focus-within .heritage-flip,.heritage-card.flipped .heritage-flip{transform:rotateY(180deg);}
   .heritage-flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;overflow:hidden;}
-  .heritage-flip-front img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
-  .heritage-card:hover .heritage-flip-front img{transform:scale(1.05);}
-  .heritage-flip-back{
-    transform:rotateY(180deg);background:var(--card);border:1px solid var(--line);
-    padding:26px 24px;display:flex;flex-direction:column;justify-content:center;
+  .heritage-flip-front{
+    background:var(--card);border:1px solid var(--line);padding:22px 20px;
+    display:flex;flex-direction:column;
   }
-  .heritage-flip-back h3{font-size:19px;margin-bottom:12px;}
-  .heritage-flip-back p{color:var(--muted);font-size:14px;line-height:1.65;}
+  .heritage-thumb{aspect-ratio:16/10;border-radius:10px;overflow:hidden;margin-bottom:16px;flex-shrink:0;}
+  .heritage-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .heritage-flip-front h3{font-size:18px;margin-bottom:10px;}
+  .heritage-flip-front p{color:var(--muted);font-size:13.5px;line-height:1.6;}
+  .heritage-flip-back{transform:rotateY(180deg);}
+  .heritage-flip-back img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
+  .heritage-card:hover .heritage-flip-back img{transform:scale(1.05);}
   @media (max-width:1000px){.heritage-grid{grid-template-columns:1fr 1fr;}}
-  @media (max-width:560px){.heritage-grid{grid-template-columns:1fr;}}
+  /* Below 600px, a swipeable horizontal row instead of a single stacked
+     column — cards are shown one (mostly) at a time with a peek of the
+     next, snapping into place as the visitor swipes left/right. Native
+     scroll-snap rather than a JS carousel, so it's just a normal touch
+     scroll and doesn't fight the tap-to-flip handler. */
+  @media (max-width:600px){
+    .heritage-grid{
+      display:flex;grid-template-columns:none;overflow-x:auto;gap:16px;
+      scroll-snap-type:x mandatory;scroll-padding-left:22px;
+      margin:0 -22px;padding:4px 22px 10px;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .heritage-grid::-webkit-scrollbar{display:none;}
+    .heritage-card{flex:0 0 78%;scroll-snap-align:start;}
+  }
 
   /* Touch-only "tap me" hint: a pulsing badge plus a one-time wobble once
      the grid scrolls into view (.in is added by script.js's shared reveal
