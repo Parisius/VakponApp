@@ -385,6 +385,24 @@
   @keyframes heroScrollBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
   @media (prefers-reduced-motion: reduce){.hero-scroll-cue{animation:none;}}
 
+  /* BACK TO TOP — shared across every page (script.js shows it past a
+     scroll threshold and handles the click). z-index sits just below the
+     mobile full-screen menu panel (z-index:5) so an open menu still covers
+     it instead of floating on top of the nav. */
+  .back-to-top{
+    position:fixed;right:24px;bottom:24px;z-index:4;width:46px;height:46px;border-radius:50%;
+    background:var(--card);border:1px solid var(--line);color:var(--text);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 12px 28px rgba(0,0,0,.18);
+    opacity:0;pointer-events:none;transform:translateY(12px);
+    transition:opacity .3s ease,transform .3s ease,background .2s,border-color .2s,color .2s;
+  }
+  .back-to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .back-to-top:hover{background:var(--accent);color:#0b0b0a;border-color:var(--accent);}
+  .back-to-top svg{width:18px;height:18px;}
+  @media (max-width:600px){.back-to-top{right:16px;bottom:16px;width:42px;height:42px;}}
+  @media (prefers-reduced-motion: reduce){.back-to-top{transition:opacity .3s ease;}}
+
   /* CONTACT */
   .contact-grid{display:grid;grid-template-columns:0.85fr 1.15fr;gap:70px;}
   .contact-info h2{font-size:clamp(28px,3.2vw,40px);margin-bottom:20px;}
