@@ -1,4 +1,35 @@
 let allTranslations = [];
+let groups = {};
+let groupOrder = [];
+let activeGroup = null;
+
+// Friendly label for each key prefix (the part before the first "."), in
+// the order translations naturally appear in default-ui-strings.ts —
+// roughly top-to-bottom the order things appear on the site. A prefix not
+// listed here (a future addition) just falls back to itself as the label,
+// so this page never breaks when new keys are added.
+const GROUP_LABELS = {
+  meta: 'Méta / SEO',
+  nav: 'Navigation',
+  header: 'En-tête',
+  heroMenu: 'Menu héro',
+  a11y: 'Accessibilité',
+  hero: 'Bannière héro',
+  modal: 'Modale offre spéciale',
+  vision: 'Section Notre Vision',
+  guide: 'Page Guide du voyageur',
+  apropos: 'Page À propos',
+  contactPage: 'Page Contact',
+  offres: 'Section Nos Offres',
+  offerCard: "Carte d'offre",
+  common: 'Général',
+  surMesure: 'Offre Sur-Mesure',
+  patrimoine: 'Section Patrimoine',
+  heritage: 'Cartes Patrimoine',
+  contact: 'Section Réservation (accueil)',
+  form: 'Formulaire de réservation',
+  footer: 'Pied de page',
+};
 
 (async function () {
   const identity = await initShell({ view: 'translations', requiredRoles: ['admin', 'operations', 'marketing'] });
@@ -9,6 +40,11 @@ let allTranslations = [];
   await load();
 })();
 
+function keyGroup(key) {
+  const i = key.indexOf('.');
+  return i === -1 ? key : key.slice(0, i);
+}
+
 async function load() {
   try {
     allTranslations = await api('/admin/translations');
@@ -16,14 +52,57 @@ async function load() {
     showToast('Impossible de charger les traductions.', { type: 'error' });
     return;
   }
+
+  groups = {};
+  groupOrder = [];
+  allTranslations.forEach((r) => {
+    const g = keyGroup(r.key);
+    if (!groups[g]) { groups[g] = []; groupOrder.push(g); }
+    groups[g].push(r);
+  });
+  activeGroup = groupOrder[0] || null;
+
+  renderTabs();
   render('');
+}
+
+function renderTabs() {
+  const wrap = document.getElementById('i18nTabs');
+  wrap.innerHTML = groupOrder.map((g) => `
+    <button class="i18n-tab${g === activeGroup ? ' active' : ''}" data-group="${g}">
+      ${GROUP_LABELS[g] || g}<span class="count">${groups[g].length}</span>
+    </button>
+  `).join('');
+
+  wrap.querySelectorAll('.i18n-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activeGroup = btn.dataset.group;
+      const search = document.getElementById('topSearch');
+      search.value = '';
+      renderTabs();
+      render('');
+    });
+  });
 }
 
 function render(filter) {
   const tbody = document.querySelector('#translationsTable tbody');
-  const rows = filter
-    ? allTranslations.filter((r) => r.key.toLowerCase().includes(filter) || r.fr.toLowerCase().includes(filter) || r.en.toLowerCase().includes(filter))
-    : allTranslations;
+  const tabsEl = document.getElementById('i18nTabs');
+  const noteEl = document.getElementById('i18nSearchNote');
+
+  let rows;
+  if (filter) {
+    tabsEl.hidden = true;
+    rows = allTranslations.filter((r) => r.key.toLowerCase().includes(filter) || r.fr.toLowerCase().includes(filter) || r.en.toLowerCase().includes(filter));
+    noteEl.hidden = false;
+    noteEl.textContent = rows.length
+      ? `${rows.length} résultat${rows.length === 1 ? '' : 's'} pour « ${filter} » — dans toutes les sections.`
+      : `Aucun résultat pour « ${filter} ».`;
+  } else {
+    tabsEl.hidden = false;
+    noteEl.hidden = true;
+    rows = groups[activeGroup] || [];
+  }
 
   tbody.innerHTML = rows.map((r) => `
     <tr data-key="${r.key}">

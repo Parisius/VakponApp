@@ -168,6 +168,22 @@ html[data-theme="light"] .auth-side{
 .period-filter button:hover{color:var(--text);}
 .period-filter button.active{background:var(--accent);color:var(--accent-text);}
 
+/* ===== I18N TABS (Traductions page — grouped by key prefix) ===== */
+.i18n-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.i18n-tab{
+  background:var(--bg-2);border:1px solid var(--line);color:var(--muted);
+  font-size:13px;font-weight:600;padding:8px 14px;border-radius:100px;cursor:pointer;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;font-family:'Inter',sans-serif;
+}
+.i18n-tab:hover{color:var(--text);border-color:var(--muted);}
+.i18n-tab.active{background:var(--accent);border-color:var(--accent);color:var(--accent-text);}
+.i18n-tab .count{
+  font-size:11px;font-weight:700;background:rgba(128,128,128,.2);color:inherit;
+  padding:1px 7px;border-radius:100px;line-height:1.5;
+}
+.i18n-tab.active .count{background:rgba(0,0,0,.18);}
+.i18n-search-note{color:var(--muted);font-size:13px;margin-bottom:14px;}
+
 /* ===== TABLE ===== */
 .table-wrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow-x:auto;overflow-y:hidden;}
 table{width:100%;border-collapse:collapse;min-width:640px;}
