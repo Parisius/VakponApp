@@ -11,6 +11,7 @@
     --muted:#9c9a90;
     --accent:#15b568;
     --accent-2:#4c86e0;
+    --accent-2-dim:#4c86e022;
     --header-scrolled-bg:rgba(11,11,10,0.86);
   }
   html[data-theme="light"]{
@@ -23,6 +24,7 @@
     --muted:#65635a;
     --accent:#0f9a55;
     --accent-2:#0c4da8;
+    --accent-2-dim:#0c4da822;
     --header-scrolled-bg:rgba(250,249,245,0.86);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -190,11 +192,29 @@
 
   /* PATRIMOINE */
   .heritage-head{margin-bottom:80px;max-width:640px;}
-  .heritage-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px 60px;}
-  .heritage-card{border-top:1px solid var(--line);padding-top:26px;}
-  .heritage-num{font-family:'Fraunces',serif;color:var(--accent-2);font-size:14px;margin-bottom:14px;display:block;}
-  .heritage-card h3{font-size:22px;margin-bottom:14px;}
-  .heritage-card p{color:var(--muted);font-size:15px;max-width:440px;}
+  /* Photo front / text-on-flip back — hover (or keyboard focus) rotates the
+     card 180° to reveal the description. No index number: the photo is the
+     identifier now, same way the homepage's other visual sections work. */
+  .heritage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;}
+  .heritage-card{perspective:1600px;aspect-ratio:3/4;}
+  .heritage-card:focus{outline:none;}
+  .heritage-card:focus-visible .heritage-flip{outline:2px solid var(--accent);outline-offset:4px;}
+  .heritage-flip{
+    position:relative;width:100%;height:100%;border-radius:16px;
+    transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.1,.2,1);
+  }
+  .heritage-card:hover .heritage-flip,.heritage-card:focus-within .heritage-flip{transform:rotateY(180deg);}
+  .heritage-flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;overflow:hidden;}
+  .heritage-flip-front img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
+  .heritage-card:hover .heritage-flip-front img{transform:scale(1.05);}
+  .heritage-flip-back{
+    transform:rotateY(180deg);background:var(--card);border:1px solid var(--line);
+    padding:26px 24px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .heritage-flip-back h3{font-size:19px;margin-bottom:12px;}
+  .heritage-flip-back p{color:var(--muted);font-size:14px;line-height:1.65;}
+  @media (max-width:1000px){.heritage-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:560px){.heritage-grid{grid-template-columns:1fr;}}
 
   /* OFFRE SPÉCIALE — MODAL (full-screen sheet, slides up like a new page) */
   .offer-modal{position:fixed;inset:0;z-index:500;visibility:hidden;pointer-events:none;}
@@ -372,7 +392,7 @@
     header{padding:20px 22px;}
     nav{display:none;}
     section{padding:80px 0;}
-    .offer-card,.contact-grid,.heritage-grid,.footer-grid{grid-template-columns:1fr;gap:30px;}
+    .offer-card,.contact-grid,.footer-grid{grid-template-columns:1fr;gap:30px;}
     .offer-card:nth-child(even) .o-media,.offer-card:nth-child(even) .o-info{order:initial;}
     .form-row{grid-template-columns:1fr;}
     .offer-card{grid-template-columns:1fr;top:16px !important;padding:28px;}
@@ -445,12 +465,15 @@
   }
   .content-section{padding:0 0 140px;}
   .content-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:44px 40px;}
-  .content-card{border-top:1px solid var(--line);padding-top:26px;}
+  .content-card{/* border-top:1px solid var(--line); */padding-top:26px;}
   .content-card-icon{
-    width:52px;height:52px;border-radius:14px;background:var(--accent-dim);color:var(--accent);
-    display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+    width:52px;height:52px;border-radius:14px;background:var(--accent-2-dim);color:var(--accent-2);
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;
   }
   .content-card-icon svg{width:24px;height:24px;}
+  /* Short underline beneath the icon instead of a number — same device as
+     heritage-card's index digit, just anchored to the icon here. */
+  .content-card-rule{display:block;width:28px;height:2px;background:var(--accent-2);margin-bottom:18px;}
   .content-card h3{font-size:20px;margin-bottom:12px;}
   .content-card p{color:var(--muted);font-size:15px;line-height:1.7;}
   .content-loading{color:var(--muted);font-size:14.5px;}

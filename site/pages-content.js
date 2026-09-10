@@ -60,6 +60,7 @@
       list.innerHTML = (pageData.sections || []).map((s, i) => `
         <div class="content-card reveal" style="transition-delay:${Math.min(i, 6) * 70}ms;">
           <span class="content-card-icon">${iconSvg(s.icon)}</span>
+          <span class="content-card-rule"></span>
           <h3>${escapeHtml(currentLang() === 'en' && s.titleEn ? s.titleEn : s.titleFr)}</h3>
           <p>${escapeHtml(currentLang() === 'en' && s.bodyEn ? s.bodyEn : s.bodyFr)}</p>
         </div>
