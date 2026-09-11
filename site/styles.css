@@ -463,9 +463,19 @@
     nav{display:none;}
     section{padding:80px 0;}
     .offer-card,.contact-grid,.footer-grid{grid-template-columns:1fr;gap:30px;}
-    .offer-card:nth-child(even) .o-media,.offer-card:nth-child(even) .o-info{order:initial;}
     .form-row{grid-template-columns:1fr;}
-    .offer-card{grid-template-columns:1fr;top:16px !important;padding:28px;}
+    /* Mobile only (desktop/tablet keep the sticky-stacking layout as-is):
+       the photo (.o-media) came after the whole text block — quote,
+       description, included list, price, CTA — so on a long card the next
+       sticky card had already slid up and covered the current one before
+       you ever scrolled far enough to see its photo. Photo now leads, and
+       cards flow normally instead of stacking, so nothing gets covered
+       before it's been seen. */
+    .offer-card{
+      grid-template-columns:1fr;padding:28px;
+      position:relative;top:0!important;
+    }
+    .offer-card .o-media{order:-1;margin-bottom:22px;aspect-ratio:16/10;}
     .hero-ff-tag span{display:none;}
     .hero-ff-content{flex-direction:column;align-items:flex-start;gap:20px;}
     .hero-ff-side{align-items:flex-start;width:100%;}
