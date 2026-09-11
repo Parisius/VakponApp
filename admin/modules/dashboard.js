@@ -7,7 +7,14 @@ let team = [];
 let canSee = () => false;
 
 (async function () {
-  const identity = await initShell({ view: 'dashboard' });
+  // Every other admin page passes requiredRoles; the dashboard is the
+  // NAV_ITEMS entry with roles:null (visible to any staff role, by design)
+  // but that also meant it was the one page that never rejected a
+  // customer-role session — a customer merely navigating to /management
+  // would land in the dashboard shell without ever logging in there. Any
+  // key of ROLE_LABELS is a real staff role, so this accepts all of them
+  // and only 'customer' fails the check.
+  const identity = await initShell({ view: 'dashboard', requiredRoles: Object.keys(ROLE_LABELS) });
   if (!identity) return;
 
   const role = identity.role;

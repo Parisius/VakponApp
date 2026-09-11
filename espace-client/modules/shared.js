@@ -35,6 +35,20 @@ async function logout() {
   window.location.href = 'login.html';
 }
 
+// The auth cookie is shared across every portal on this domain (espace-client
+// AND management both read the same vakpon_jwt), and /users/me succeeds for
+// any authenticated role — so a staff member who is logged into /management
+// and simply navigates here would otherwise land in the customer portal
+// without ever signing in as a customer. Clear the mismatched session rather
+// than just redirecting, so they don't bounce straight back in via the
+// still-valid staff cookie.
+async function requireCustomerRole(me) {
+  if (me.role === 'customer') return true;
+  try { await api('/auth/logout', { method: 'POST' }); } catch { /* best effort */ }
+  window.location.href = 'login.html';
+  return false;
+}
+
 // ====== THEME ======
 function initTheme() {
   const root = document.documentElement;
@@ -88,6 +102,7 @@ async function initShell({ view } = {}) {
   let me;
   try { me = await api('/users/me'); }
   catch { window.location.href = 'login.html'; return null; }
+  if (!(await requireCustomerRole(me))) return null;
 
   const initial = (me.fullName || me.email || '?').trim().charAt(0).toUpperCase();
   const topbarAvatar = document.getElementById('topbarAvatar');

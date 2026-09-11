@@ -88,9 +88,14 @@
 <script>
   initTheme();
   // No client-readable token anymore (httpOnly cookie) — ask the API whether
-  // a valid session cookie is already present.
-  fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then((res) => {
-    if (res.ok) window.location.href = 'index.html';
+  // a valid session cookie is already present. The same cookie is shared
+  // with /management, so a staff member who merely navigates here still
+  // has a valid (staff-role) session — only skip the login form for an
+  // actual customer session.
+  fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then(async (res) => {
+    if (!res.ok) return;
+    const me = await res.json().catch(() => ({}));
+    if (me.role === 'customer') window.location.href = 'index.html';
   }).catch(() => {});
   populateCountrySelect(document.getElementById('regCountry'), 'BJ');
 
@@ -126,10 +131,18 @@
     const errorEl = document.getElementById('loginError');
     errorEl.textContent = '';
     try {
-      await api('/auth/login', {
+      const data = await api('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }),
       });
+      // Staff accounts go through an OTP step handled only by the
+      // back-office login (see admin/login.html) — no session cookie has
+      // been set yet at this point, so just explain rather than redirect
+      // into a 401 loop.
+      if (data.otpRequired) {
+        errorEl.textContent = "Ce compte est un compte du personnel Vakpon Tours — merci de vous connecter depuis le back-office.";
+        return;
+      }
       window.location.href = 'index.html';
     } catch (err) {
       errorEl.textContent = err.message;

@@ -193,6 +193,17 @@ async function initShell({ view, requiredRoles = null, onSearch = null } = {}) {
   catch { window.location.href = 'login.html'; return null; }
   const identity = getIdentity();
 
+  // Not a staff role at all (e.g. a customer session — the same cookie is
+  // shared with /espace-client, so simply navigating here can carry a
+  // valid-but-wrong-portal session) — this isn't "wrong page for your
+  // role", it's "you're not staff", so log out and send to the login
+  // screen rather than showing an in-page message that offers no way in.
+  if (!Object.keys(ROLE_LABELS).includes(identity.role)) {
+    try { await api('/auth/logout', { method: 'POST' }); } catch { /* best effort */ }
+    window.location.href = 'login.html';
+    return null;
+  }
+
   if (requiredRoles && !requiredRoles.includes(identity.role)) {
     document.body.innerHTML = `
       <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;">

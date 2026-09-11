@@ -55,9 +55,14 @@
 <script>
   initTheme();
   // No client-readable token anymore (httpOnly cookie) — ask the API whether
-  // a valid session cookie is already present.
-  fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then((res) => {
-    if (res.ok) window.location.href = 'index.html';
+  // a valid session cookie is already present. The same cookie is shared
+  // with /espace-client, so a customer who merely navigates here still has
+  // a valid (customer-role) session — only skip the login form for an
+  // actual staff session.
+  fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then(async (res) => {
+    if (!res.ok) return;
+    const me = await res.json().catch(() => ({}));
+    if (Object.keys(ROLE_LABELS).includes(me.role)) window.location.href = 'index.html';
   }).catch(() => {});
 
   const loginForm = document.getElementById('loginForm');
