@@ -22,6 +22,49 @@
     });
   }
 
+  // Active nav highlighting — shared across the flat header nav (index.html),
+  // the standalone-page nav (.page-nav) and the full-screen menu panel every
+  // page reuses (.ff-menu-links), since all three duplicate the same links.
+  // A page link (a-propos.html, contact.html, guide-du-voyageur.html) is
+  // "active" simply by matching the current filename. index.html has no own
+  // page link to match — instead #offres/#patrimoine track which section is
+  // centered in the viewport as the user scrolls, since those are anchors
+  // within the one page rather than separate URLs.
+  (function initActiveNav(){
+    const navLinks = document.querySelectorAll('nav a, .page-nav a, .ff-menu-links a');
+    if (!navLinks.length) return;
+    const currentFile = location.pathname.split('/').pop() || 'index.html';
+
+    function setActive(matchHref) {
+      navLinks.forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        a.classList.toggle('active', !a.classList.contains('espace-client-link') && !!matchHref && href === matchHref);
+      });
+    }
+
+    if (currentFile !== 'index.html' && currentFile !== '') {
+      setActive(currentFile);
+      return;
+    }
+
+    const sectionLinks = { offres: '#offres', patrimoine: '#patrimoine' };
+    const sections = Object.keys(sectionLinks).map((id) => document.getElementById(id)).filter(Boolean);
+    if (!sections.length) return;
+
+    let activeId = null;
+    // A zero-height "line" pinned to the viewport's vertical center — a
+    // section counts as current the moment that line crosses it, giving a
+    // clean single-active-section result without measuring scroll offsets.
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) activeId = e.target.id;
+        else if (activeId === e.target.id) activeId = null;
+      });
+      setActive(activeId ? sectionLinks[activeId] : null);
+    }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+    sections.forEach((s) => spy.observe(s));
+  })();
+
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
