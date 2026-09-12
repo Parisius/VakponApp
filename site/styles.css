@@ -347,13 +347,29 @@
      reachable from the sticky header once the hero has scrolled out of view.
      Hidden on desktop (that width uses the plain <nav> links instead). */
   .site-header-menu-toggle{
-    display:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+    display:none;height:36px;padding:0 9px;border-radius:100px;border:1px solid var(--line);gap:4px;
     background:transparent;color:inherit;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;
+    font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;
+    transition:border-color .2s,background .2s;
   }
-  .site-header-menu-toggle svg{width:17px;height:17px;}
-  .site-header-menu-toggle .icon-close{display:none;}
-  .site-header-menu-toggle.is-open .icon-open{display:none;}
-  .site-header-menu-toggle.is-open .icon-close{display:inline-flex;}
+  .site-header-menu-toggle:hover{background:rgba(128,128,128,.12);}
+  .site-header-menu-toggle svg{width:12px;height:12px;flex-shrink:0;}
+  .site-header-menu-toggle .icon-close,.site-header-menu-toggle .label-close{display:none;}
+  .site-header-menu-toggle.is-open .icon-open,.site-header-menu-toggle.is-open .label-open{display:none;}
+  .site-header-menu-toggle.is-open .icon-close,.site-header-menu-toggle.is-open .label-close{display:inline-flex;}
+  /* .page-header (guide/about/contact) is always visible, and the homepage's
+     own header becomes visible too once scrolled past the hero — both sit
+     above the full-screen panel (menu-open is set on <body> by script.js),
+     so their logo and theme toggle would otherwise repeat the panel's own
+     brand row. visibility (not display) keeps the header's layout stable so
+     the close button doesn't jump. Desktop never opens this panel. */
+  @media (max-width:900px){
+    body.menu-open #siteHeader .header-logo,
+    body.menu-open .page-header-logo,
+    body.menu-open #themeToggle{
+      visibility:hidden;
+    }
+  }
   .hero-ff-menu-panel{
     position:absolute;top:70px;right:44px;z-index:5;background:var(--card);border:1px solid var(--line);
     border-radius:12px;padding:32px;display:none;grid-template-columns:1fr 1fr;gap:44px;min-width:420px;
@@ -506,7 +522,8 @@
     .nav-right .ff-menu-social{display:none;}
     .site-header-menu-toggle{display:flex;}
     .btn-pill{padding:11px 16px;font-size:13px;}
-    .theme-toggle{width:34px;height:34px;}
+    .theme-toggle,.lang-toggle{width:34px;height:34px;}
+    .page-header-actions{gap:6px;}
   }
 
   /* CONTENT PAGES (Guide du voyageur, À propos) — a plain page hero plus a
