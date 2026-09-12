@@ -681,5 +681,14 @@
       console.error('Vakpon Tours: could not load offers from the API', err);
     }
   }
-  loadOffers();
+  // The mobile menu's "Offre Spéciale" link on every other page has nowhere
+  // to open the modal locally, so it points back here with a hash instead —
+  // wait for the real offer data to land before opening it, then clear the
+  // hash so it doesn't reopen on refresh or when navigating back.
+  loadOffers().then(() => {
+    if (offerModal && location.hash === '#offre-speciale') {
+      openOfferModal();
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  });
   }

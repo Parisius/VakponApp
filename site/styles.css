@@ -507,12 +507,6 @@
     .site-header-menu-toggle{display:flex;}
     .btn-pill{padding:11px 16px;font-size:13px;}
     .theme-toggle{width:34px;height:34px;}
-    /* On the standalone content pages (guide/about/contact) the sticky
-       .page-header logo stays visible above the full-screen mobile menu
-       panel, so the panel's own brand-row logo is redundant — showing both
-       reads as the logo repeating twice. The homepage's own menu panel uses
-       .brand-mark-flat instead of .header-logo, so it's unaffected. */
-    .hero-ff-menu-panel .ff-menu-brand .header-logo{display:none;}
   }
 
   /* CONTENT PAGES (Guide du voyageur, À propos) — a plain page hero plus a
