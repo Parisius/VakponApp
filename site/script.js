@@ -346,10 +346,6 @@
       ffMenuPanel.classList.toggle('open', opening);
       ffMenuToggles.forEach((btn) => btn.classList.toggle('is-open', opening));
       document.body.style.overflow = opening ? 'hidden' : '';
-      // On every page but the homepage's own hero, the sticky header stays
-      // visible above the full-screen panel — without this it would repeat
-      // the same logo/theme-toggle the panel's own brand row already shows.
-      document.body.classList.toggle('menu-open', opening);
     };
     const closeFfMenu = () => setOpen(false);
     ffMenuToggles.forEach((btn) => {

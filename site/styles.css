@@ -357,19 +357,6 @@
   .site-header-menu-toggle .icon-close,.site-header-menu-toggle .label-close{display:none;}
   .site-header-menu-toggle.is-open .icon-open,.site-header-menu-toggle.is-open .label-open{display:none;}
   .site-header-menu-toggle.is-open .icon-close,.site-header-menu-toggle.is-open .label-close{display:inline-flex;}
-  /* .page-header (guide/about/contact) is always visible, and the homepage's
-     own header becomes visible too once scrolled past the hero — both sit
-     above the full-screen panel (menu-open is set on <body> by script.js),
-     so their logo and theme toggle would otherwise repeat the panel's own
-     brand row. visibility (not display) keeps the header's layout stable so
-     the close button doesn't jump. Desktop never opens this panel. */
-  @media (max-width:900px){
-    body.menu-open #siteHeader .header-logo,
-    body.menu-open .page-header-logo,
-    body.menu-open #themeToggle{
-      visibility:hidden;
-    }
-  }
   .hero-ff-menu-panel{
     position:absolute;top:70px;right:44px;z-index:5;background:var(--card);border:1px solid var(--line);
     border-radius:12px;padding:32px;display:none;grid-template-columns:1fr 1fr;gap:44px;min-width:420px;
