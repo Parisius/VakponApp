@@ -72,18 +72,18 @@
   }
   /* Once scrolled, switch the HOMEPAGE header from the hero's centered-logo
      grid to the same left-logo / inline-nav / right-actions flex layout
-     used on the standalone pages (.page-header-inner) — not just nav's own
+     used on the standalone pages (.page-header-inner) - not just nav's own
      pill-vs-flat styling but the whole arrangement. Scoped to
      :not(.page-header): script.js toggles the same "scrolled" class on
      every page's #siteHeader, and .header-logo/nav are bare selectors that
-     also match the standalone pages' own header — without this guard the
+     also match the standalone pages' own header - without this guard the
      unscoped `order` values would override their default DOM order (their
      actions cluster has no explicit order, so it would jump ahead of the
      logo) each time the visitor scrolls, breaking the "same on scroll or
      not" header those pages are meant to keep. Desktop only: below 900px
      the nav links are hidden and the actions cluster (theme toggle,
      "Nous Contacter" pill, hamburger) is too wide to sit next to the logo
-     in an unwrapped flex row — it was overflowing the header and pushing
+     in an unwrapped flex row - it was overflowing the header and pushing
      the hamburger off-screen. Mobile keeps the existing
      grid-template-columns:auto 1fr auto layout from the 900px query below. */
   @media (min-width:901px){
@@ -92,7 +92,7 @@
     header.scrolled:not(.page-header) nav{order:2;flex:1;justify-self:auto;}
     header.scrolled:not(.page-header) .nav-right{order:3;}
     /* The social icons only ever showed once scrolled anyway (the header is
-       fully transparent before that) — dropped here so the scrolled bar reads
+       fully transparent before that) - dropped here so the scrolled bar reads
        as the same clean actions cluster as the standalone pages. Still shown
        in the mobile menu panel and the footer. */
     header.scrolled:not(.page-header) .nav-right .ff-menu-social{display:none;}
@@ -134,7 +134,7 @@
   .sr-word{display:inline-block;opacity:.15;filter:blur(3px);transition:opacity .5s ease,filter .5s ease;}
   .sr-word.active{opacity:1;filter:blur(0);}
 
-  /* OFFERS — sticky stacking cards, full content */
+  /* OFFERS - sticky stacking cards, full content */
   .offer-head{max-width:640px;margin-bottom:70px;}
   .offer-head h2{font-size:clamp(30px,3.6vw,46px);}
   .offers-stack{position:relative;padding-bottom:40px;}
@@ -194,7 +194,7 @@
 
   /* PATRIMOINE */
   .heritage-head{margin-bottom:80px;max-width:640px;}
-  /* Text + thumbnail front / full photo on flip back — hover (or keyboard
+  /* Text + thumbnail front / full photo on flip back - hover (or keyboard
      focus, or a tap on touch devices) rotates the card 180° to reveal the
      photo. Text-first so the description is readable without any
      interaction; the flip is a "see the photo" reward rather than the only
@@ -202,7 +202,7 @@
   .heritage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;}
   /* Without this, tapping the card on iOS Safari can be read as a
      text-selection gesture (word highlight + Copy/Search callout) instead
-     of a tap — which ate the tap that's supposed to flip the card, since
+     of a tap - which ate the tap that's supposed to flip the card, since
      the callout swallows the click entirely. */
   .heritage-card{
     perspective:1600px;aspect-ratio:3/4;cursor:pointer;
@@ -215,7 +215,7 @@
     transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.1,.2,1);
   }
   /* .flipped is toggled by script.js on tap for touch devices, since :hover
-     is unreliable/undiscoverable on mobile — see the tap-hint block below. */
+     is unreliable/undiscoverable on mobile - see the tap-hint block below. */
   .heritage-card:hover .heritage-flip,.heritage-card:focus-within .heritage-flip,.heritage-card.flipped .heritage-flip{transform:rotateY(180deg);}
   .heritage-flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;overflow:hidden;}
   .heritage-flip-front{
@@ -231,7 +231,7 @@
   .heritage-card:hover .heritage-flip-back img{transform:scale(1.05);}
   @media (max-width:1000px){.heritage-grid{grid-template-columns:1fr 1fr;}}
   /* Below 600px, a swipeable horizontal row instead of a single stacked
-     column — cards are shown one (mostly) at a time with a peek of the
+     column - cards are shown one (mostly) at a time with a peek of the
      next, snapping into place as the visitor swipes left/right. Native
      scroll-snap rather than a JS carousel, so it's just a normal touch
      scroll and doesn't fight the tap-to-flip handler. */
@@ -248,7 +248,7 @@
 
   /* Touch-only "tap me" hint: a pulsing badge plus a one-time wobble once
      the grid scrolls into view (.in is added by script.js's shared reveal
-     observer), so mobile visitors — who never get a hover cue — discover
+     observer), so mobile visitors - who never get a hover cue - discover
      the flip. Desktop keeps the plain hover interaction, untouched. */
   .heritage-tap-hint{
     position:absolute;bottom:14px;right:14px;z-index:2;width:34px;height:34px;border-radius:50%;
@@ -270,7 +270,7 @@
     .heritage-grid .heritage-card .heritage-flip{animation:none !important;}
   }
 
-  /* OFFRE SPÉCIALE — MODAL (full-screen sheet, slides up like a new page) */
+  /* OFFRE SPÉCIALE - MODAL (full-screen sheet, slides up like a new page) */
   .offer-modal{position:fixed;inset:0;z-index:500;visibility:hidden;pointer-events:none;}
   .offer-modal.open{visibility:visible;pointer-events:auto;}
   .offer-modal-backdrop{position:absolute;inset:0;background:rgba(6,6,5,.7);opacity:0;transition:opacity .4s ease;}
@@ -318,7 +318,7 @@
   .itinerary-day p{color:var(--muted);font-size:14px;max-width:560px;}
   .offer-special-note{color:var(--muted);font-size:13px;margin-top:24px;max-width:640px;}
 
-  /* HERO — FarmForm-style slideshow hero */
+  /* HERO - FarmForm-style slideshow hero */
   .hero-ff{position:relative;height:100vh;height:100svh;min-height:640px;overflow:hidden;}
   .hero-ff-bg{position:absolute;inset:0;}
   .hero-ff-bg img{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;}
@@ -339,7 +339,7 @@
   .hero-ff-menu .icon-close,.hero-ff-menu .label-close{display:none;}
   .hero-ff-menu.is-open .icon-open,.hero-ff-menu.is-open .label-open{display:none;}
   .hero-ff-menu.is-open .icon-close,.hero-ff-menu.is-open .label-close{display:inline-flex;}
-  /* The full-screen menu panel (mobile) sits opaque behind this button — its
+  /* The full-screen menu panel (mobile) sits opaque behind this button - its
      background follows the theme, so the button must too, not the fixed
      white used for the rest of the (always-dark) hero header. */
   .hero-ff-menu.is-open{color:var(--text);}
@@ -410,7 +410,7 @@
   @keyframes heroScrollBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
   @media (prefers-reduced-motion: reduce){.hero-scroll-cue{animation:none;}}
 
-  /* BACK TO TOP — shared across every page (script.js shows it past a
+  /* BACK TO TOP - shared across every page (script.js shows it past a
      scroll threshold and handles the click). z-index sits just below the
      mobile full-screen menu panel (z-index:5) so an open menu still covers
      it instead of floating on top of the nav. */
@@ -473,8 +473,8 @@
     .offer-card,.contact-grid,.footer-grid{grid-template-columns:1fr;gap:30px;}
     .form-row{grid-template-columns:1fr;}
     /* Mobile only (desktop/tablet keep the sticky-stacking layout as-is):
-       the photo (.o-media) came after the whole text block — quote,
-       description, included list, price, CTA — so on a long card the next
+       the photo (.o-media) came after the whole text block - quote,
+       description, included list, price, CTA - so on a long card the next
        sticky card had already slid up and covered the current one before
        you ever scrolled far enough to see its photo. Photo now leads, and
        cards flow normally instead of stacking, so nothing gets covered
@@ -502,7 +502,7 @@
     .itinerary-day{grid-template-columns:1fr;gap:6px;}
     header{grid-template-columns:auto 1fr auto;gap:10px;}
     /* nav is display:none at this width, which removes it from the grid's
-       auto-placement entirely — without pinning these explicitly, .nav-right
+       auto-placement entirely - without pinning these explicitly, .nav-right
        slides into the (too-narrow) middle track instead of the last one. */
     header .header-logo{grid-column:1;}
     header .nav-right{grid-column:3;}
@@ -515,14 +515,14 @@
     .page-header-actions{gap:6px;}
   }
 
-  /* CONTENT PAGES (Guide du voyageur, À propos) — a plain page hero plus a
+  /* CONTENT PAGES (Guide du voyageur, À propos) - a plain page hero plus a
      grid of topic cards, shared by both since they're the same shape on the
      backend (hero + sections). */
   .page-hero{padding:80px 0 60px;}
   .page-hero .eyebrow{margin-bottom:18px;}
   .page-hero h1{font-size:clamp(34px,5vw,58px);max-width:820px;margin-bottom:22px;text-wrap:balance;}
   .page-hero p{color:var(--muted);font-size:clamp(16px,1.6vw,19px);max-width:640px;line-height:1.7;}
-  /* Photo variant — a real destination photo behind the title, in the same
+  /* Photo variant - a real destination photo behind the title, in the same
      spirit as the homepage's own hero, sized per-page via --hero-img. */
   .page-hero.has-photo{position:relative;padding:150px 0 110px;color:#fff;overflow:hidden;}
   .page-hero.has-photo::before{content:'';position:absolute;inset:0;background:var(--hero-img) center/cover no-repeat;z-index:0;}
@@ -530,7 +530,7 @@
   .page-hero.has-photo .wrap{position:relative;z-index:2;}
   .page-hero.has-photo .eyebrow{color:rgba(255,255,255,.8);}
   .page-hero.has-photo p{color:rgba(255,255,255,.88);}
-  /* About-page intro — a photo + word-by-word scroll-reveal text pair,
+  /* About-page intro - a photo + word-by-word scroll-reveal text pair,
      shown before the Mission/Authenticity/etc. card grid. Reuses the same
      .scroll-reveal-text/.sr-word mechanism as the homepage's Vision
      section (see script.js), so it needs no extra JS. */
@@ -554,7 +554,7 @@
     display:flex;align-items:center;justify-content:center;margin-bottom:14px;
   }
   .content-card-icon svg{width:24px;height:24px;}
-  /* Short underline beneath the icon instead of a number — same device as
+  /* Short underline beneath the icon instead of a number - same device as
      heritage-card's index digit, just anchored to the icon here. */
   .content-card-rule{display:block;width:28px;height:2px;background:var(--accent-2);margin-bottom:18px;}
   .content-card h3{font-size:20px;margin-bottom:12px;}
@@ -563,7 +563,7 @@
   .contact-guide-link{display:inline-block;font-size:14.5px;font-weight:600;color:var(--accent-2);border-bottom:1px solid transparent;transition:border-color .2s;}
   .contact-guide-link:hover{border-color:var(--accent-2);}
 
-  /* LEGAL PAGES (CGV, Politique de confidentialité) — a sticky table of
+  /* LEGAL PAGES (CGV, Politique de confidentialité) - a sticky table of
      contents beside a long-form article body, collapsing to a single
      column on mobile since a sticky sidebar has nowhere to live there. */
   .legal-content{padding:0 0 140px;}
@@ -597,10 +597,10 @@
   }
 
   /* Simple, always-visible header for interior pages (Guide du voyageur,
-     À propos) — the homepage's own <header> starts transparent/invisible
+     À propos) - the homepage's own <header> starts transparent/invisible
      until scrolled past its hero, which only makes sense over that hero. */
   /* Overrides every property the shared bare `header{}` rule sets for the
-     homepage's hide-until-scrolled hero header — this one must be visible,
+     homepage's hide-until-scrolled hero header - this one must be visible,
      interactive, and normally colored from the very first paint. */
   .page-header{
     position:sticky;top:0;left:0;right:0;z-index:200;display:block;
@@ -616,7 +616,7 @@
   .page-nav a.active{color:var(--accent);}
   .page-nav a.active::after{content:'';position:absolute;left:0;right:0;bottom:-8px;height:2px;background:var(--accent);border-radius:2px;}
   .page-header-actions{display:flex;align-items:center;gap:10px;}
-  /* Same breakpoint as the homepage's own header — below it, the flat nav
+  /* Same breakpoint as the homepage's own header - below it, the flat nav
      gives way to the hamburger + full-screen menu panel it shares with
      every other page (see .hero-ff-menu-panel / #siteMenuToggle). */
   @media (max-width:900px){
@@ -624,7 +624,7 @@
     .page-nav{display:none;}
   }
   /* The wordmark logo alone runs ~150px even at reduced height, leaving no
-     room for the action cluster on narrow phones — the "Espace Client" pill
+     room for the action cluster on narrow phones - the "Espace Client" pill
      is already reachable from the hamburger panel below, so it's dropped
      here rather than risking horizontal overflow. */
   @media (max-width:430px){

@@ -1,18 +1,21 @@
 (async function () {
-  const me = await initShell({ view: 'offers' });
+  const me = await initShell({ view: "offers" });
   if (!me) return;
 
-  const offers = await api('/offers');
-  const grid = document.getElementById('offersGrid');
-  grid.innerHTML = offers.map(renderOfferCard).join('') + surMesureCard();
+  const offers = await api("/offers");
+  const grid = document.getElementById("offersGrid");
+  grid.innerHTML = offers.map(renderOfferCard).join("") + surMesureCard();
 
-  grid.querySelectorAll('[data-book]').forEach((btn) => {
-    btn.addEventListener('click', () => {
+  grid.querySelectorAll("[data-book]").forEach((btn) => {
+    btn.addEventListener("click", () => {
       window.location.href = `index.html?offer=${btn.dataset.book}&new=1`;
     });
   });
-  const surMesureBtn = document.getElementById('surMesureBtn');
-  if (surMesureBtn) surMesureBtn.addEventListener('click', () => { window.location.href = 'index.html?new=1'; });
+  const surMesureBtn = document.getElementById("surMesureBtn");
+  if (surMesureBtn)
+    surMesureBtn.addEventListener("click", () => {
+      window.location.href = "index.html?new=1";
+    });
 })();
 
 function surMesureCard() {
@@ -29,19 +32,24 @@ function surMesureCard() {
 }
 
 function renderOfferCard(offer) {
-  const img = (offer.images && offer.images[0]) || 'images/route-des-captifs.jpg';
-  const price = offer.priceTiers?.[0] ? `${offer.priceTiers[0].label} : ${offer.priceTiers[0].amount}` : '';
-  const meta = [offer.durationLabel, offer.routeLabel].filter(Boolean).join(' — ');
+  const img =
+    (offer.images && offer.images[0]) || "images/route-des-captifs.jpg";
+  const price = offer.priceTiers?.[0]
+    ? `${offer.priceTiers[0].label} : ${offer.priceTiers[0].amount}`
+    : "";
+  const meta = [offer.durationLabel, offer.routeLabel]
+    .filter(Boolean)
+    .join(" - ");
   return `
-    <div class="ec-offer-card${offer.featured ? ' featured' : ''}">
+    <div class="ec-offer-card${offer.featured ? " featured" : ""}">
       <img src="${img}" alt="${offer.title}">
       <div class="ec-offer-card-body">
-        ${offer.featured ? '<span class="ec-offer-badge">Offre spéciale</span>' : ''}
+        ${offer.featured ? '<span class="ec-offer-badge">Offre spéciale</span>' : ""}
         <h3>${offer.title}</h3>
-        ${offer.quote ? `<div class="ec-offer-quote">« ${offer.quote} »</div>` : ''}
-        ${offer.description ? `<p class="ec-offer-desc">${offer.description}</p>` : ''}
-        ${meta ? `<div class="ec-offer-meta">${meta}</div>` : ''}
-        ${price ? `<div class="ec-offer-price">${price}</div>` : ''}
+        ${offer.quote ? `<div class="ec-offer-quote">« ${offer.quote} »</div>` : ""}
+        ${offer.description ? `<p class="ec-offer-desc">${offer.description}</p>` : ""}
+        ${meta ? `<div class="ec-offer-meta">${meta}</div>` : ""}
+        ${price ? `<div class="ec-offer-price">${price}</div>` : ""}
         <button class="btn-pill full" data-book="${offer._id}" style="margin-top:8px;">Réserver ce package</button>
       </div>
     </div>`;

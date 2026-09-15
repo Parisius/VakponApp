@@ -168,7 +168,7 @@ html[data-theme="light"] .auth-side{
 .period-filter button:hover{color:var(--text);}
 .period-filter button.active{background:var(--accent);color:var(--accent-text);}
 
-/* ===== I18N TABS (Traductions page — grouped by key prefix) ===== */
+/* ===== I18N TABS (Traductions page - grouped by key prefix) ===== */
 .i18n-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
 .i18n-tab{
   background:var(--bg-2);border:1px solid var(--line);color:var(--muted);

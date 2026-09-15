@@ -1,32 +1,37 @@
-const SLUG_LABELS = { 'guide-du-voyageur': 'Guide du voyageur', 'a-propos': 'À propos' };
-// Kept in sync with the ICON_SVGS map in site/pages-content.js — sections
+const SLUG_LABELS = {
+  "guide-du-voyageur": "Guide du voyageur",
+  "a-propos": "À propos",
+};
+// Kept in sync with the ICON_SVGS map in site/pages-content.js - sections
 // only ever store one of these keys, never raw HTML, so the site can render
 // a fixed, code-owned SVG for each rather than trusting DB content as markup.
 const ICON_OPTIONS = {
-  passport: 'Passeport (visa)',
-  plane: 'Avion (transport)',
-  shield: 'Bouclier (sécurité/santé)',
-  wallet: 'Portefeuille (monnaie)',
-  sun: 'Soleil (météo)',
-  'message-circle': 'Bulle (langue)',
-  'map-pin': 'Épingle (lieu)',
-  target: 'Cible (mission)',
-  globe: 'Globe (authenticité)',
-  users: 'Personnes (équipe)',
+  passport: "Passeport (visa)",
+  plane: "Avion (transport)",
+  shield: "Bouclier (sécurité/santé)",
+  wallet: "Portefeuille (monnaie)",
+  sun: "Soleil (météo)",
+  "message-circle": "Bulle (langue)",
+  "map-pin": "Épingle (lieu)",
+  target: "Cible (mission)",
+  globe: "Globe (authenticité)",
+  users: "Personnes (équipe)",
 };
-let currentSlug = 'guide-du-voyageur';
+let currentSlug = "guide-du-voyageur";
 let pageCache = {};
 
 (async function () {
   const identity = await initShell({
-    view: 'pages',
-    requiredRoles: NAV_ITEMS.find((i) => i.view === 'pages').roles,
+    view: "pages",
+    requiredRoles: NAV_ITEMS.find((i) => i.view === "pages").roles,
   });
   if (!identity) return;
 
-  document.querySelectorAll('#pageTabs .modal-tab').forEach((tab) => {
-    tab.addEventListener('click', async () => {
-      document.querySelectorAll('#pageTabs .modal-tab').forEach((t) => t.classList.toggle('active', t === tab));
+  document.querySelectorAll("#pageTabs .modal-tab").forEach((tab) => {
+    tab.addEventListener("click", async () => {
+      document
+        .querySelectorAll("#pageTabs .modal-tab")
+        .forEach((t) => t.classList.toggle("active", t === tab));
       currentSlug = tab.dataset.slug;
       await load();
     });
@@ -44,10 +49,10 @@ async function load() {
 
 function render() {
   const p = pageCache[currentSlug];
-  const editor = document.getElementById('pageEditor');
+  const editor = document.getElementById("pageEditor");
   editor.innerHTML = `
     <div class="table-wrap" style="padding:28px;">
-      <h2 style="margin-bottom:18px;">${escapeHtml(SLUG_LABELS[currentSlug])} — En-tête</h2>
+      <h2 style="margin-bottom:18px;">${escapeHtml(SLUG_LABELS[currentSlug])} - En-tête</h2>
       <div class="form-grid">
         <div class="field"><label>Titre (FR)</label><input id="pg-heroTitleFr" value="${escapeHtml(p.heroTitleFr)}"></div>
         <div class="field"><label>Titre (EN)</label><input id="pg-heroTitleEn" value="${escapeHtml(p.heroTitleEn)}"></div>
@@ -69,15 +74,19 @@ function render() {
     </div>
   `;
 
-  const sectionsList = editor.querySelector('#sectionsList');
+  const sectionsList = editor.querySelector("#sectionsList");
 
   function renumber() {
-    sectionsList.querySelectorAll('.day-card .day-num').forEach((el, idx) => { el.textContent = `Section ${idx + 1}`; });
+    sectionsList.querySelectorAll(".day-card .day-num").forEach((el, idx) => {
+      el.textContent = `Section ${idx + 1}`;
+    });
   }
 
-  function addSectionCard(section = { icon: '', titleFr: '', titleEn: '', bodyFr: '', bodyEn: '' }) {
-    const row = document.createElement('div');
-    row.className = 'day-card';
+  function addSectionCard(
+    section = { icon: "", titleFr: "", titleEn: "", bodyFr: "", bodyEn: "" },
+  ) {
+    const row = document.createElement("div");
+    row.className = "day-card";
     row.innerHTML = `
       <div class="day-card-head">
         <span class="day-num">Section ${sectionsList.children.length + 1}</span>
@@ -89,7 +98,12 @@ function render() {
       </div>
       <div class="field field-sm"><label>Icône</label>
         <select data-field="icon" style="max-width:240px;">
-          ${Object.entries(ICON_OPTIONS).map(([key, label]) => `<option value="${key}" ${section.icon === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
+          ${Object.entries(ICON_OPTIONS)
+            .map(
+              ([key, label]) =>
+                `<option value="${key}" ${section.icon === key ? "selected" : ""}>${escapeHtml(label)}</option>`,
+            )
+            .join("")}
         </select>
       </div>
       <div class="form-grid">
@@ -100,13 +114,16 @@ function render() {
         <div class="field field-sm"><label>Texte FR</label><textarea data-field="bodyFr" rows="4">${escapeHtml(section.bodyFr)}</textarea></div>
         <div class="field field-sm"><label>Texte EN</label><textarea data-field="bodyEn" rows="4">${escapeHtml(section.bodyEn)}</textarea></div>
       </div>`;
-    row.querySelector('.mini-card-remove').addEventListener('click', () => { row.remove(); renumber(); });
-    row.querySelector('[data-move="up"]').addEventListener('click', () => {
+    row.querySelector(".mini-card-remove").addEventListener("click", () => {
+      row.remove();
+      renumber();
+    });
+    row.querySelector('[data-move="up"]').addEventListener("click", () => {
       const prev = row.previousElementSibling;
       if (prev) sectionsList.insertBefore(row, prev);
       renumber();
     });
-    row.querySelector('[data-move="down"]').addEventListener('click', () => {
+    row.querySelector('[data-move="down"]').addEventListener("click", () => {
       const next = row.nextElementSibling;
       if (next) sectionsList.insertBefore(next, row);
       renumber();
@@ -115,27 +132,37 @@ function render() {
   }
 
   (p.sections || []).forEach((s) => addSectionCard(s));
-  editor.querySelector('#addSection').addEventListener('click', () => addSectionCard());
+  editor
+    .querySelector("#addSection")
+    .addEventListener("click", () => addSectionCard());
 
-  editor.querySelector('#savePageBtn').addEventListener('click', async () => {
-    const field = (row, name) => row.querySelector(`[data-field="${name}"]`)?.value || '';
+  editor.querySelector("#savePageBtn").addEventListener("click", async () => {
+    const field = (row, name) =>
+      row.querySelector(`[data-field="${name}"]`)?.value || "";
     const payload = {
-      heroTitleFr: editor.querySelector('#pg-heroTitleFr').value,
-      heroTitleEn: editor.querySelector('#pg-heroTitleEn').value,
-      heroSubtitleFr: editor.querySelector('#pg-heroSubtitleFr').value,
-      heroSubtitleEn: editor.querySelector('#pg-heroSubtitleEn').value,
-      sections: [...sectionsList.querySelectorAll('.day-card')].map((row) => ({
-        icon: field(row, 'icon'),
-        titleFr: field(row, 'titleFr'),
-        titleEn: field(row, 'titleEn'),
-        bodyFr: field(row, 'bodyFr'),
-        bodyEn: field(row, 'bodyEn'),
-      })).filter((s) => s.titleFr),
+      heroTitleFr: editor.querySelector("#pg-heroTitleFr").value,
+      heroTitleEn: editor.querySelector("#pg-heroTitleEn").value,
+      heroSubtitleFr: editor.querySelector("#pg-heroSubtitleFr").value,
+      heroSubtitleEn: editor.querySelector("#pg-heroSubtitleEn").value,
+      sections: [...sectionsList.querySelectorAll(".day-card")]
+        .map((row) => ({
+          icon: field(row, "icon"),
+          titleFr: field(row, "titleFr"),
+          titleEn: field(row, "titleEn"),
+          bodyFr: field(row, "bodyFr"),
+          bodyEn: field(row, "bodyEn"),
+        }))
+        .filter((s) => s.titleFr),
     };
     try {
-      const updated = await api(`/admin/pages/${currentSlug}`, { method: 'PATCH', body: JSON.stringify(payload) });
+      const updated = await api(`/admin/pages/${currentSlug}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
       pageCache[currentSlug] = updated;
-      showToast('Page mise à jour.');
-    } catch (err) { showToast(err.message, { type: 'error' }); }
+      showToast("Page mise à jour.");
+    } catch (err) {
+      showToast(err.message, { type: "error" });
+    }
   });
 }

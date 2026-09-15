@@ -54,10 +54,10 @@
 <script src="modules/shared.js"></script>
 <script>
   initTheme();
-  // No client-readable token anymore (httpOnly cookie) — ask the API whether
+  // No client-readable token anymore (httpOnly cookie) - ask the API whether
   // a valid session cookie is already present. The same cookie is shared
   // with /espace-client, so a customer who merely navigates here still has
-  // a valid (customer-role) session — only skip the login form for an
+  // a valid (customer-role) session - only skip the login form for an
   // actual staff session.
   fetch(`${API_BASE}/users/me`, { credentials: 'include' }).then(async (res) => {
     if (!res.ok) return;
