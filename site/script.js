@@ -266,6 +266,19 @@ function pickList(obj, field) {
 
 function applyTranslations() {
   document.documentElement.lang = currentLang;
+  // Manually-written bilingual pages (the legal pages) don't go through the
+  // backend translations dict at all - each block of copy is duplicated in
+  // the HTML as a .lang-fr/.lang-en pair, and this just shows the one that
+  // matches. Uses the `hidden` attribute so it works for any element type.
+  document
+    .querySelectorAll(".lang-fr")
+    .forEach((el) => (el.hidden = currentLang === "en"));
+  document
+    .querySelectorAll(".lang-en")
+    .forEach((el) => (el.hidden = currentLang !== "en"));
+  const titleFr = document.body.getAttribute("data-title-fr");
+  const titleEn = document.body.getAttribute("data-title-en");
+  if (titleFr && titleEn) document.title = currentLang === "en" ? titleEn : titleFr;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (translations[key]) el.textContent = t(key);
@@ -291,9 +304,14 @@ function applyTranslations() {
         currentLang === "fr" ? "Passer en anglais" : "Switch to French",
       );
     });
-  if (translations["meta.title"]) document.title = t("meta.title");
+  // meta.title/meta.description are a single global key with no per-page
+  // scoping - skip them on pages that manage their own title via
+  // data-title-fr/data-title-en (set just above), or this would stomp it
+  // right back to the homepage's title a moment after we set it.
+  if (!(titleFr && titleEn) && translations["meta.title"])
+    document.title = t("meta.title");
   const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc && translations["meta.description"])
+  if (!(titleFr && titleEn) && metaDesc && translations["meta.description"])
     metaDesc.setAttribute("content", t("meta.description"));
 
   // Re-render everything driven by offer data in the new language.
