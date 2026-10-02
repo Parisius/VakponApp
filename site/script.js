@@ -689,7 +689,12 @@ if (ffPaginationEl) {
   // rendered dynamically after the page has already loaded (see loadOffers below).
   const offerModal = document.getElementById("offerModal");
   function openOfferModal(offer) {
-    populateOfferModal(offer || heroOffersList[0]);
+    const target = offer || heroOffersList[0];
+    // Nothing to show (no offer passed in, and no active hero offer right
+    // now) - leave the modal closed rather than opening it onto whatever
+    // stale content is still sitting in its markup.
+    if (!target) return;
+    populateOfferModal(target);
     offerModal.classList.add("open");
     document.body.style.overflow = "hidden";
   }
@@ -810,7 +815,20 @@ if (ffPaginationEl) {
   function applyHeroOffers(offers) {
     const heroList = offers.filter((o) => o.isHero).slice(0, MAX_HERO_SLIDES);
     heroOffersList = heroList;
-    if (!heroList.length) return;
+    if (!heroList.length) {
+      // No active hero offer right now - fall back to the generic slide
+      // instead of leaving the first slide stuck on its hardcoded
+      // placeholder offer (only ever unresolved - i.e. never-updated -
+      // placeholders get reset, so a legitimately loaded offer slide from
+      // an earlier call here is never clobbered).
+      const firstSeg = ffPaginationEl.querySelector(".seg");
+      const firstMeta = firstSeg && slideMeta.get(firstSeg);
+      if (firstMeta && firstMeta.isOffer && !firstMeta.offer) {
+        slideMeta.set(firstSeg, { ...firstMeta, isOffer: false });
+        setFfSlide(ffIndex);
+      }
+      return;
+    }
 
     heroList.forEach((offer, i) => {
       const segs = Array.from(ffPaginationEl.querySelectorAll(".seg"));
@@ -930,6 +948,12 @@ if (ffPaginationEl) {
     }
     populateOfferSelect(offers);
     applyHeroOffers(offers);
+
+    // The menu's standalone "Offre Spéciale" link has nothing to open once
+    // there's no active hero offer - hide it rather than leave a dead click.
+    document.querySelectorAll('.ff-menu-links [data-open-offer]').forEach((el) => {
+      el.style.display = heroOffersList.length ? "" : "none";
+    });
   }
 
   async function loadOffers() {
